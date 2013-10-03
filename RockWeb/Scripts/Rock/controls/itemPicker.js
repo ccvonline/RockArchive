@@ -5,8 +5,8 @@
 
     Rock.controls.itemPicker = (function () {
         var ItemPicker = function (options) {
-                this.options = options;
-            },
+            this.options = options;
+        },
             exports;
 
         ItemPicker.prototype = {
