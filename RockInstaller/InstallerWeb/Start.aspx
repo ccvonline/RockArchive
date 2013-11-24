@@ -19,6 +19,7 @@
 	//
 	// some constants
 	//
+    const string dotNetVersionRequired = "4.5";
 	const string internetCheckSite = "www.google.com";
     const string rockZipAssemblyFile = "http://rockchms.blob.core.windows.net/install/Ionic.Zip.dll";
     const string rockInstallFile = "http://rockchms.blob.core.windows.net/install/Install.aspx";
@@ -121,7 +122,7 @@
 		<title>Rock ChMS Installer...</title>
 		<link rel='stylesheet' href='http://fonts.googleapis.com/css?family=Open+Sans:400,600,700' type='text/css'>
         <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
-        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/2.0/css/font-awesome.css">
+        <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
         <link rel="stylesheet" href="<%=rockStyles %>">
 		
         <link href="<%=rockLogoIco %>" rel="shortcut icon">
@@ -130,9 +131,7 @@
 	</head>
 	<body>
 		<form runat="server">
-		<asp:ScriptManager ID="ScriptManager1" runat="server" EnablePartialRendering="true" />
-		<asp:UpdatePanel ID="GettingStartedUpdatePanel" runat="server" UpdateMode="Conditional">
-			<ContentTemplate>
+		
 				<div id="content">
 					<h1>Rock ChMS</h1>
 					
@@ -155,8 +154,6 @@
 
 					</div>
 				</div>
-			</ContentTemplate>
-		</asp:UpdatePanel>
 		</form>
 		
 		
@@ -215,12 +212,12 @@
 			
 			if (!tcpClient.Connected) {
 				checksFailed = true;
-				errorDetails += "<li><i class='icon-warning-sign fail'></i> You don't seem to be connected to the internet. The Rock installer requires an Internet connection.</li>";
+                errorDetails += "<li><i class='fa fa-exclamation-triangle fail'></i> You don't seem to be connected to the internet. The Rock installer requires an Internet connection.</li>";
 			}
 		}
 		catch(Exception ex) {
 			checksFailed = true;
-			errorDetails += "<li><i class='icon-warning-sign fail'></i> You don't seem to be connected to the internet. The Rock installer requires an Internet connection.</li>";
+            errorDetails += "<li><i class='fa fa-exclamation-triangle fail'></i> You don't seem to be connected to the internet. The Rock installer requires an Internet connection.</li>";
 		}
 		finally {
 			tcpClient = null;
@@ -229,8 +226,7 @@
 		// check for write access to the file system
         
         // first get user that the server is running as
-        var user = System.Security.Principal.WindowsIdentity.GetCurrent().User;
-        string userName = user.Translate(typeof (System.Security.Principal.NTAccount)).ToString();
+        string userName = System.Security.Principal.WindowsIdentity.GetCurrent().Name;
 
         bool canWrite = false;
 
@@ -254,11 +250,44 @@
         
         if (!canWrite) {
         	checksFailed = true;
-            errorDetails += "<li><i class='icon-warning-sign fail'></i> The username " + userName + " does not have write access to the server's file system. <a class='btn btn-info btn-xs' href='TODO'>Let's Fix It Together</a> </li>";
+            errorDetails += "<li><i class='fa fa-exclamation-triangle fail'></i> The username " + userName + " does not have write access to the server's file system. <a class='btn btn-info btn-xs' href='TODO'>Let's Fix It Together</a> </li>";
         }
 
+        // check asp.net version
+        string checkResults = string.Empty;
+        
+        if (!CheckDotNetVersion(out checkResults))
+        {
+            checksFailed = true;
+            errorDetails += "<li><i class='fa fa-exclamation-triangle fail'></i>" + checkResults + " <a href='http://www.rockchms.com/installer/help/dotnet-version.html' class='btn btn-info btn-xs'>Let's Fix It Together</a></li>";
+        }
+        
+        
 		return checksFailed;
 	}
+
+    private bool CheckDotNetVersion(out string errorDetails)
+    {
+
+        bool checksFailed = false;
+        errorDetails = string.Empty;
+
+        // check .net
+        // ok this is not easy as .net 4.5 actually reports as 4.0.30319.269 so instead we need to search for the existence of an assembly that
+        // only exists in 4.5 (could also look for Environment.Version.Major == 4 && Environment.Version.Revision > 17000 but this is not future proof)
+        // sigh... Microsoft... :)
+        if (!(Type.GetType("System.Reflection.ReflectionContext", false) != null))
+        {
+            errorDetails = "The server does not have the correct .Net runtime.  You have .Net version " + System.Environment.Version.Major.ToString() + "." + System.Environment.Version.ToString() + " the Rock ChMS version requires " + dotNetVersionRequired + ".";
+        }
+        else
+        {
+            errorDetails += "You have the correct version of .Net (4.5+).";
+            checksFailed = true;
+        }
+
+        return checksFailed;
+    }
 
 
 </script>

@@ -25,6 +25,14 @@
 
 	}
 
+    private string CleanBaseAddress(string address)
+    {
+        if (!address.EndsWith("/"))
+        {
+            address = address + "/";
+        }
+        return address;
+    }
     
     void AdminNext_Click(Object sender, EventArgs e)
     {
@@ -39,13 +47,36 @@
 		}
 		
 		pAdminAccount.Visible = false;
-		pOrganization.Visible = true;
+        pBaseAddresses.Visible = true;
 
         // add timezones to dropdown
         foreach (TimeZoneInfo timeZone in TimeZoneInfo.GetSystemTimeZones())
         {
             ddTimeZone.Items.Add(new ListItem(timeZone.DisplayName, timeZone.Id));
         }
+    }
+
+    void AddressesNext_Click(Object sender, EventArgs e)
+    {
+        // clean addresses
+        string internalAddress = CleanBaseAddress(txtInternalAddress.Text);
+        string publicAddress = CleanBaseAddress(txtPublicAddress.Text);
+        
+        // save addresses
+        var globalAttributesCache = Rock.Web.Cache.GlobalAttributesCache.Read();
+        globalAttributesCache.SetValue("InternalApplicationRoot", internalAddress, null, true);
+        globalAttributesCache.SetValue("PublicApplicationRoot", publicAddress, null, true);
+
+        // set timezone value
+        Configuration rockWebConfig = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("~");
+        rockWebConfig.AppSettings.Settings["OrgTimeZone"].Value = ddTimeZone.SelectedValue;
+        rockWebConfig.Save();
+        
+        // set organization address to their public address
+        txtOrgWebsite.Text = publicAddress.Replace("http://", "").Replace("https://", "").TrimEnd('/');
+        
+        pBaseAddresses.Visible = false;
+        pOrganization.Visible = true;
     }
     
     void OrgNext_Click(Object sender, EventArgs e)
@@ -57,17 +88,6 @@
     	globalAttributesCache.SetValue("OrganizationEmail", txtOrgEmail.Text, null, true);
     	globalAttributesCache.SetValue("OrganizationPhone", txtOrgPhone.Text, null, true);
     	globalAttributesCache.SetValue("OrganizationWebsite", txtOrgWebsite.Text, null, true);
-
-        // update the external site domain with the value provided
-        SiteDomainService domainService = new SiteDomainService();
-        SiteDomain domain = domainService.Get(new Guid(Rock.SystemGuid.SiteDomain.SITEDOMAIN_EXTERNAL));
-        domain.Domain = txtOrgWebsite.Text;
-        domainService.Save(domain, null);
-        
-        // set timezone value
-        Configuration rockWebConfig = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("~");
-        rockWebConfig.AppSettings.Settings["OrgTimeZone"].Value = ddTimeZone.SelectedValue;
-        rockWebConfig.Save();
     	
     	pOrganization.Visible = false;
     	pEmailSettings.Visible = true;
@@ -98,11 +118,12 @@
     	pFinished.Visible = true;
     	
     	// delete install files
-    	File.Delete(Server.MapPath(".") + @"\waiting.gif");
-    	File.Delete(Server.MapPath(".") + @"\Install.aspx");
-    	File.Delete(Server.MapPath(".") + @"\Configure.aspx");
-    	File.Delete(Server.MapPath(".") + @"\RockInstall.zip");
-    	File.Delete(Server.MapPath(".") + @"\Start.aspx");
+        string installDirectory = Server.MapPath(".");
+        File.Delete(installDirectory + @"\waiting.gif");
+        File.Delete(installDirectory + @"\Install.aspx");
+        File.Delete(installDirectory + @"\Configure.aspx");
+        File.Delete(installDirectory + @"\RockInstall.zip");
+        File.Delete(installDirectory + @"\Start.aspx");
     }
     
     
@@ -113,8 +134,8 @@
 		<title>Rock ChMS Installer...</title>
 
 		<link rel='stylesheet' href='http://fonts.googleapis.com/css?family=Open+Sans:400,600,700' type='text/css'>
-		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/2.0/css/font-awesome.css">
 		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
+        <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
         <link rel="stylesheet" href="<%=rockStyles %>">
 		
         <script src="http://code.jquery.com/jquery-1.9.0.min.js"></script>
@@ -160,10 +181,41 @@
 							</div>
 						
                             <div class="btn-list">
-							    <asp:LinkButton id="btnAdminNext" runat="server" OnClientClick="return validateAdminAccount();" Text="Next <i class='icon-chevron-right'></i>"  CssClass="btn btn-primary" OnClick="AdminNext_Click"></asp:LinkButton>
+							    <asp:LinkButton id="btnAdminNext" runat="server" OnClientClick="return validateAdminAccount();" Text="Next <i class='fa fa-chevron-right'></i>"  CssClass="btn btn-primary" OnClick="AdminNext_Click"></asp:LinkButton>
+						    </div>
+                        </asp:Panel>
+
+                        <asp:Panel id="pBaseAddresses" Visible="false" runat="server">
+							<h1>Hosting Configuration</h1>
+						
+							<p></p>
+						
+                            <h4>Hosting Addresses</h4>
+							<p>Rock needs to know where you are installing the application so it can correctly assemble links when
+                                you go to do things like send emails. These settings can be changed at anytime in your <span class="navigation-tip">Global Settings</span>.
+                                <br />
+                                <small>If you are installing Rock in subdirectory be sure to include it in the address.</small></p>
+							<div class="form-group">
+								<label class="control-label" for="inputEmail">Internal Url <small>Used Inside Organization</small></label>
+								<asp:TextBox ID="txtInternalAddress" runat="server" placeholder="http://yourinternalsite.com/" CssClass="required-field form-control" Text=""></asp:TextBox>
+							</div>
+							
+							<div class="form-group">
+								<label class="control-label" for="inputEmail">Public URL <small>Used Externally</small></label>
+								<asp:TextBox ID="txtPublicAddress" runat="server" placeholder="http://yoursite.com/" CssClass="required-field form-control" Text=""></asp:TextBox>
+							</div>
+
+                            <div class="form-group">
+								<label class="control-label" for="inputEmail">Organization Timezone</label>
+								<asp:DropDownList ID="ddTimeZone" runat="server" CssClass="form-control"></asp:DropDownList>
+							</div>
+						
+                            <div class="btn-list">
+							    <asp:LinkButton id="btnAddressesNext" runat="server" OnClientClick="return validateAddresses();" Text="Next <i class='fa fa-chevron-right'></i>"  CssClass="btn btn-primary" OnClick="AddressesNext_Click"></asp:LinkButton>
 						    </div>
                         </asp:Panel>
 						
+                         <!--#region Organization Panel  -->
 						<asp:Panel id="pOrganization" Visible="false" runat="server">
 							<h1>Organization Information</h1>
 						
@@ -191,15 +243,11 @@
 								<asp:TextBox ID="txtOrgWebsite" placeholder="www.yourchurch.com" runat="server" CssClass="required-field form-control" Text=""></asp:TextBox>
 							</div>
 
-                            <div class="form-group">
-								<label class="control-label" for="inputEmail">Organization Timezone</label>
-								<asp:DropDownList ID="ddTimeZone" runat="server" CssClass="form-control"></asp:DropDownList>
-							</div>
-						
                             <div class="btn-list">
-							    <asp:LinkButton id="btnOrgNext" runat="server" OnClientClick="return validateOrgSettings();" Text="Next <i class='icon-chevron-right'></i>"  CssClass="btn btn-primary" OnClick="OrgNext_Click"></asp:LinkButton>
+							    <asp:LinkButton id="btnOrgNext" runat="server" OnClientClick="return validateOrgSettings();" Text="Next <i class='fa fa-chevron-right'></i>"  CssClass="btn btn-primary" OnClick="OrgNext_Click"></asp:LinkButton>
 						    </div>
                        </asp:Panel>
+                        <!--#endregion -->
 						
 						<asp:Panel id="pEmailSettings" Visible="false" runat="server">
 							<h1>Email Server Settings</h1>
@@ -245,7 +293,7 @@
 							</div>
 						
 							<div class="btn-list">
-                                <asp:LinkButton id="btnEmailNext" runat="server" OnClientClick="return validateEmailSettings();" Text="Next <i class='icon-chevron-right'></i>"  CssClass="btn btn-primary" OnClick="EmailNext_Click"></asp:LinkButton>
+                                <asp:LinkButton id="btnEmailNext" runat="server" OnClientClick="return validateEmailSettings();" Text="Next <i class='fa fa-chevron-right'></i>"  CssClass="btn btn-primary" OnClick="EmailNext_Click"></asp:LinkButton>
 						    </div>
                         </asp:Panel>
 						
@@ -259,7 +307,7 @@
 							<p></p>
 
                             <div class="btn-list">
-							    <asp:LinkButton id="btnDone" runat="server" OnClientClick="return redirectHome();" Text="<i class='icon-road'></i> Let's Get This Show On The Road"  CssClass="btn btn-primary" ></asp:LinkButton>
+							    <a class="btn btn-primary" href="./"><i class='fa fa-road'></i> Let's Get This Show On The Road</a>
                             </div>
 						</asp:Panel>
 						
@@ -292,10 +340,45 @@
 				    return false;
 			    }
 			}
+
+			function validateAddresses() {
+			    var formValid = true;
+
+			    // ensure that all values were provided
+			    $("#pBaseAddresses .required-field").each(function (index, value) {
+			        if (this.value.length == 0) {
+			            $(this).closest('.form-group').addClass('has-error');
+			            formValid = false;
+			        } else {
+			            $(this).closest('.form-group').removeClass('has-error');
+			        }
+			    });
+
+			    // ensure inputs are valid urls
+			    if (!validateURL($('#txtInternalAddress').val())) {
+			        $('#txtInternalAddress').closest('.form-group').addClass('has-error');
+			        formValid = false;
+			    }
+
+			    if (!validateURL($('#txtPublicAddress').val())) {
+			        $('#txtPublicAddress').closest('.form-group').addClass('has-error');
+			        formValid = false;
+			    }
+
+			    if (formValid) {
+			        return true;
+
+			    } else {
+			        return false;
+			    }
+			}
 			
 			function validateOrgSettings()
 			{
 			    var formValid = true;
+
+			    // add spinner to button to tell user something is happening
+			    $('#btnOrgNext i').attr("class", "fa fa-spinner fa-spin");
 
 			    // ensure that all values were provided
 			    $("#pOrganization .required-field").each( function(index, value) {
@@ -332,16 +415,12 @@
 				
 			    
 			    if (formValid) {
-				    return true;
-				      
+			        // add spinner to button to tell user something is happening
+			        $('#btnEmailNext i').attr("class", "fa fa-spinner fa-spin");
+			        return true;
 			    } else {
 				    return false;
 			    }
-			}
-			
-			function redirectHome()
-			{
-				window.location = "/"
 			}
 
 			$(document).ready(function () {
@@ -366,6 +445,13 @@
 			    });
 
 			});
+
+			function validateURL(textval) {
+			    var urlregex = new RegExp(
+                      "^(http|https|ftp)\://([a-zA-Z0-9\.\-]+(\:[a-zA-Z0-9\.&amp;%\$\-]+)*@)*((25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9])\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[0-9])|([a-zA-Z0-9\-]+\.)*[a-zA-Z0-9\-]+\.(com|edu|gov|int|mil|net|org|biz|arpa|info|name|pro|aero|coop|museum|[a-zA-Z]{2}))(\:[0-9]+)*(/($|[a-zA-Z0-9\.\,\?\'\\\+&amp;%\$#\=~_\-]+))*$");
+			    return urlregex.test(textval);
+			}
+
 		</script>
 		
 	</body>
