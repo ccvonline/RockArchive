@@ -19,13 +19,16 @@
 
     const string rockLogoIco = "http://rockchms.blob.core.windows.net/install/rock-chms.ico";
     const string rockStyles = "http://rockchms.blob.core.windows.net/install/install.css";
-		
-	void Page_Load(object sender, EventArgs e)
-	{
-
-	}
-
     
+    private string CleanBaseAddress(string address)
+    {
+        if (!address.EndsWith("/"))
+        {
+            address = address + "/";
+        }
+        return address;
+    }
+
     void AdminNext_Click(Object sender, EventArgs e)
     {
     	// update the admin password
@@ -39,13 +42,36 @@
 		}
 		
 		pAdminAccount.Visible = false;
-		pOrganization.Visible = true;
+        pHosting.Visible = true;
 
         // add timezones to dropdown
         foreach (TimeZoneInfo timeZone in TimeZoneInfo.GetSystemTimeZones())
         {
             ddTimeZone.Items.Add(new ListItem(timeZone.DisplayName, timeZone.Id));
         }
+    }
+
+    void AddressesNext_Click(Object sender, EventArgs e)
+    {
+        // clean addresses
+        string internalAddress = CleanBaseAddress(txtInternalAddress.Text);
+        string publicAddress = CleanBaseAddress(txtPublicAddress.Text);
+        
+        // save addresses
+        var globalAttributesCache = Rock.Web.Cache.GlobalAttributesCache.Read();
+        globalAttributesCache.SetValue("InternalApplicationRoot", internalAddress, null, true);
+        globalAttributesCache.SetValue("PublicApplicationRoot", publicAddress, null, true);
+
+        // set timezone value
+        Configuration rockWebConfig = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("~");
+        rockWebConfig.AppSettings.Settings["OrgTimeZone"].Value = ddTimeZone.SelectedValue;
+        rockWebConfig.Save();
+        
+        // set organization address to their public address
+        txtOrgWebsite.Text = publicAddress.Replace("http://", "").Replace("https://", "").TrimEnd('/');
+        
+        pHosting.Visible = false;
+        pOrganization.Visible = true;
     }
     
     void OrgNext_Click(Object sender, EventArgs e)
@@ -57,17 +83,6 @@
     	globalAttributesCache.SetValue("OrganizationEmail", txtOrgEmail.Text, null, true);
     	globalAttributesCache.SetValue("OrganizationPhone", txtOrgPhone.Text, null, true);
     	globalAttributesCache.SetValue("OrganizationWebsite", txtOrgWebsite.Text, null, true);
-
-        // update the external site domain with the value provided
-        /*SiteDomainService domainService = new SiteDomainService();
-        SiteDomain domain = domainService.Get(new Guid(Rock.SystemGuid.SiteDomain.SITEDOMAIN_EXTERNAL));
-        domain.Domain = txtOrgWebsite.Text;
-        domainService.Save(domain, null);*/
-        
-        // set timezone value
-        Configuration rockWebConfig = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("~");
-        rockWebConfig.AppSettings.Settings["OrgTimeZone"].Value = ddTimeZone.SelectedValue;
-        rockWebConfig.Save();
     	
     	pOrganization.Visible = false;
     	pEmailSettings.Visible = true;
@@ -134,8 +149,7 @@
 					
 					<div id="content-box" class="group">
 						
-						<asp:Literal id="lTest" runat="server"></asp:Literal>
-						
+                        <!--#region Admin Account Panel  -->
 						<asp:Panel id="pAdminAccount" Visible="true" runat="server">
 							<h1>Rock Configuration</h1>
 						
@@ -164,7 +178,103 @@
 							    <asp:LinkButton id="btnAdminNext" runat="server" OnClientClick="return validateAdminAccount();" Text="Next <i class='fa fa-chevron-right'></i>"  CssClass="btn btn-primary" OnClick="AdminNext_Click"></asp:LinkButton>
 						    </div>
                         </asp:Panel>
+
+                        <!-- panel javascript -->
+                        <script>
+                            function validateAdminAccount() {
+                                var formValid = true;
+
+                                // ensure that all values were provided
+                                $("#pAdminAccount .required-field").each(function (index, value) {
+                                    if (this.value.length == 0) {
+                                        $(this).closest('.form-group').addClass('has-error');
+                                        formValid = false;
+                                    } else {
+                                        $(this).closest('.form-group').removeClass('has-error');
+                                    }
+                                });
+
+
+                                if (formValid) {
+                                    return true;
+
+                                } else {
+                                    return false;
+                                }
+                            }
+                        </script>
+
+                        <!--#endregion -->
+
+                        <!--#region Hosting Panel  -->
+                        <asp:Panel id="pHosting" Visible="false" runat="server">
+							<h1>Hosting Configuration</h1>
 						
+							<p></p>
+						
+                            <h4>Hosting Addresses</h4>
+							<p>Rock needs to know where you are installing the application so it can correctly assemble links when
+                                you go to do things like send emails. These settings can be changed at anytime in your <span class="navigation-tip">Global Settings</span>.
+                                <br />
+                                <small>If you are installing Rock in subdirectory be sure to include it in the address.</small></p>
+							<div class="form-group">
+								<label class="control-label" for="inputEmail">Internal Url <small>Used Inside Organization</small></label>
+								<asp:TextBox ID="txtInternalAddress" runat="server" placeholder="http://yourinternalsite.com/" CssClass="required-field form-control" Text=""></asp:TextBox>
+							</div>
+							
+							<div class="form-group">
+								<label class="control-label" for="inputEmail">Public URL <small>Used Externally</small></label>
+								<asp:TextBox ID="txtPublicAddress" runat="server" placeholder="http://yoursite.com/" CssClass="required-field form-control" Text=""></asp:TextBox>
+							</div>
+
+                            <div class="form-group">
+								<label class="control-label" for="inputEmail">Organization Timezone</label>
+								<asp:DropDownList ID="ddTimeZone" runat="server" CssClass="form-control"></asp:DropDownList>
+							</div>
+						
+                            <div class="btn-list">
+							    <asp:LinkButton id="btnAddressesNext" runat="server" OnClientClick="return validateHosting();" Text="Next <i class='fa fa-chevron-right'></i>"  CssClass="btn btn-primary" OnClick="AddressesNext_Click"></asp:LinkButton>
+						    </div>
+                        </asp:Panel>
+
+                        <!-- panel javascript -->
+                        <script>
+                            function validateHosting() {
+                                var formValid = true;
+
+                                // ensure that all values were provided
+                                $("#pHosting .required-field").each(function (index, value) {
+                                    if (this.value.length == 0) {
+                                        $(this).closest('.form-group').addClass('has-error');
+                                        formValid = false;
+                                    } else {
+                                        $(this).closest('.form-group').removeClass('has-error');
+                                    }
+                                });
+
+                                // ensure inputs are valid urls
+                                if (!validateURL($('#txtInternalAddress').val())) {
+                                    $('#txtInternalAddress').closest('.form-group').addClass('has-error');
+                                    formValid = false;
+                                }
+
+                                if (!validateURL($('#txtPublicAddress').val())) {
+                                    $('#txtPublicAddress').closest('.form-group').addClass('has-error');
+                                    formValid = false;
+                                }
+
+                                if (formValid) {
+                                    return true;
+
+                                } else {
+                                    return false;
+                                }
+                            }
+                        </script>
+
+						<!--#endregion -->
+
+                        <!--#region Organization Panel  -->
 						<asp:Panel id="pOrganization" Visible="false" runat="server">
 							<h1>Organization Information</h1>
 						
@@ -192,16 +302,42 @@
 								<asp:TextBox ID="txtOrgWebsite" placeholder="www.yourchurch.com" runat="server" CssClass="required-field form-control" Text=""></asp:TextBox>
 							</div>
 
-                            <div class="form-group">
-								<label class="control-label" for="inputEmail">Organization Timezone</label>
-								<asp:DropDownList ID="ddTimeZone" runat="server" CssClass="form-control"></asp:DropDownList>
-							</div>
-						
                             <div class="btn-list">
 							    <asp:LinkButton id="btnOrgNext" runat="server" OnClientClick="return validateOrgSettings();" Text="Next <i class='fa fa-chevron-right'></i>"  CssClass="btn btn-primary" OnClick="OrgNext_Click"></asp:LinkButton>
 						    </div>
-                       </asp:Panel>
+                        </asp:Panel>
+
+                        <!-- panel javascript -->
+                        <script>
+                            function validateOrgSettings() {
+                                var formValid = true;
+
+                                // add spinner to button to tell user something is happening
+                                $('#btnOrgNext i').attr("class", "fa fa-spinner fa-spin");
+
+                                // ensure that all values were provided
+                                $("#pOrganization .required-field").each(function (index, value) {
+                                    if (this.value.length == 0) {
+                                        $(this).closest('.form-group').addClass('has-error');
+                                        formValid = false;
+                                    } else {
+                                        $(this).closest('.form-group').removeClass('has-error');
+                                    }
+                                });
+
+
+                                if (formValid) {
+                                    return true;
+
+                                } else {
+                                    return false;
+                                }
+                            }
+                        </script>
+
+                        <!--#endregion -->
 						
+                        <!--#region Email Settings Panel  -->
 						<asp:Panel id="pEmailSettings" Visible="false" runat="server">
 							<h1>Email Server Settings</h1>
 						
@@ -249,7 +385,36 @@
                                 <asp:LinkButton id="btnEmailNext" runat="server" OnClientClick="return validateEmailSettings();" Text="Next <i class='fa fa-chevron-right'></i>"  CssClass="btn btn-primary" OnClick="EmailNext_Click"></asp:LinkButton>
 						    </div>
                         </asp:Panel>
-						
+
+                        <!-- panel javascript -->
+                        <script>
+                            function validateEmailSettings() {
+                                var formValid = true;
+
+                                // ensure that all values were provided
+                                $("#pEmailSettings .required-field").each(function (index, value) {
+                                    if (this.value.length == 0) {
+                                        $(this).closest('.form-group').addClass('has-error');
+                                        formValid = false;
+                                    } else {
+                                        $(this).closest('.form-group').removeClass('has-error');
+                                    }
+                                });
+
+
+                                if (formValid) {
+                                    // add spinner to button to tell user something is happening
+                                    $('#btnEmailNext i').attr("class", "fa fa-spinner fa-spin");
+                                    return true;
+                                } else {
+                                    return false;
+                                }
+                            }
+                        </script>
+
+						<!--#endregion -->
+
+                        <!--#region Finished Panel  -->
 						<asp:Panel id="pFinished" Visible="false" runat="server">
 							<h1>Congratulations!!!</h1>
 						
@@ -263,111 +428,47 @@
 							    <a class="btn btn-primary" href="./"><i class='fa fa-road'></i> Let's Get This Show On The Road</a>
                             </div>
 						</asp:Panel>
-						
+						<!--#endregion -->
+
 					</div>
 				</div>
 			</ContentTemplate>
 		</asp:UpdatePanel>
 		</form>
 		
-		<script language="javascript">
-			function validateAdminAccount()
-			{
-			    var formValid = true;
+		<script>
 
-			    // ensure that all values were provided
-			    $("#pAdminAccount .required-field").each( function(index, value) {
-				    if(this.value.length == 0){
-				     	$(this).closest('.form-group').addClass('has-error');
-				     	formValid = false;
-				     } else {
-				        $(this).closest('.form-group').removeClass('has-error');
-					 }
-				});
-				
-			    
-			    if (formValid) {
-				    return true;
-				      
-			    } else {
-				    return false;
-			    }
-			}
-			
-			function validateOrgSettings()
-			{
-			    var formValid = true;
+            // functions for show/hiding passwords
+		    $(document).ready(function () {
+		        $('body').on('click', '#show-password-admin', function (e) {
 
-			    // ensure that all values were provided
-			    $("#pOrganization .required-field").each( function(index, value) {
-				    if(this.value.length == 0){
-				        $(this).closest('.form-group').addClass('has-error');
-				     	formValid = false;
-				     } else {
-				        $(this).closest('.form-group').removeClass('has-error');
-					 }
-				});
-				
-			    
-			    if (formValid) {
-				    return true;
-				      
-			    } else {
-				    return false;
-			    }
-			}
-			
-			function validateEmailSettings()
-			{
-			    var formValid = true;
+		            field = $('#txtAdminPassword');
+		            if (field.attr('type') == "text") { new_type = "password"; } else { new_type = "text"; }
+		            new_field = field.clone();
+		            new_field.attr("id", field.attr('id'));
+		            new_field.attr("type", new_type);
+		            field.replaceWith(new_field);
+		        });
 
-			    // ensure that all values were provided
-			    $("#pEmailSettings .required-field").each( function(index, value) {
-				    if(this.value.length == 0){
-				        $(this).closest('.form-group').addClass('has-error');
-				     	formValid = false;
-				     } else {
-				        $(this).closest('.form-group').removeClass('has-error');
-					 }
-				});
-				
-			    
-			    if (formValid) {
-			        // add spinner to button to tell user something is happening
-			        $('#btnEmailNext i').attr("class", "fa fa-spinner fa-spin");
-			        return true;
-			    } else {
-				    return false;
-			    }
-			}
-			
-			function redirectHome()
-			{
-				window.location = "/"
+		        $('body').on('click', '#show-password-email', function (e) {
+
+		            field = $('#txtEmailPassword');
+		            if (field.attr('type') == "text") { new_type = "password"; } else { new_type = "text"; }
+		            new_field = field.clone();
+		            new_field.attr("id", field.attr('id'));
+		            new_field.attr("type", new_type);
+		            field.replaceWith(new_field);
+		        });
+
+		    });
+
+            // validates urls 
+			function validateURL(textval) {
+			    var urlregex = new RegExp(
+                      "^(http|https|ftp)\://([a-zA-Z0-9\.\-]+(\:[a-zA-Z0-9\.&amp;%\$\-]+)*@)*((25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9])\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[0-9])|([a-zA-Z0-9\-]+\.)*[a-zA-Z0-9\-]+\.(com|edu|gov|int|mil|net|org|biz|arpa|info|name|pro|aero|coop|museum|[a-zA-Z]{2}))(\:[0-9]+)*(/($|[a-zA-Z0-9\.\,\?\'\\\+&amp;%\$#\=~_\-]+))*$");
+			    return urlregex.test(textval);
 			}
 
-			$(document).ready(function () {
-			    $('body').on('click', '#show-password-admin', function (e) {
-
-			        field = $('#txtAdminPassword');
-			        if (field.attr('type') == "text") { new_type = "password"; } else { new_type = "text"; }
-			        new_field = field.clone();
-			        new_field.attr("id", field.attr('id'));
-			        new_field.attr("type", new_type);
-			        field.replaceWith(new_field);
-			    });
-
-			    $('body').on('click', '#show-password-email', function (e) {
-
-			        field = $('#txtEmailPassword');
-			        if (field.attr('type') == "text") { new_type = "password"; } else { new_type = "text"; }
-			        new_field = field.clone();
-			        new_field.attr("id", field.attr('id'));
-			        new_field.attr("type", new_type);
-			        field.replaceWith(new_field);
-			    });
-
-			});
 		</script>
 		
 	</body>
