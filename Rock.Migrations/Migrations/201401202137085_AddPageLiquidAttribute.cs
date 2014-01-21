@@ -1,4 +1,4 @@
-﻿// <copyright>
+// <copyright>
 // Copyright 2013 by the Spark Development Network
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,18 +22,16 @@ namespace Rock.Migrations
     /// <summary>
     ///
     /// </summary>
-    public partial class PrayerRequestDateChanges : Rock.Migrations.RockMigration2
+    public partial class AddPageLiquidAttribute : Rock.Migrations.RockMigration2
     {
         /// <summary>
         /// Operations to be performed during the upgrade process.
         /// </summary>
         public override void Up()
         {
-            RenameColumn( "dbo.PrayerRequest", "EnteredDate", "EnteredDateTime" );
-            RenameColumn( "dbo.PrayerRequest", "ApprovedOnDate", "ApprovedOnDateTime" );
-
-            AlterColumn( "dbo.PrayerRequest", "EnteredDateTime", c => c.DateTime( nullable: false ) );
-            AlterColumn( "dbo.PrayerRequest", "ApprovedOnDateTime", c => c.DateTime() );
+            AddBlockTypeAttribute( "CACB9D1A-A820-4587-986A-D66A69EE9948", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Is Secondary Block", "IsSecondaryBlock", "", "Flag indicating whether this block is considered secondary and should be hidden when other secondary blocks are hidden.", 0, "False", "C80209A8-D9E0-4877-A8E3-1F7DBF64D4C2");
+            AddBlockAttributeValue( "34EC5861-84EF-4D1A-8C89-D207B3004FDC", "C80209A8-D9E0-4877-A8E3-1F7DBF64D4C2", "True" );
+            AddBlockAttributeValue( "6E8216F2-6A48-4EF8-ABA3-736C2468610D", "C80209A8-D9E0-4877-A8E3-1F7DBF64D4C2", "True" );
         }
         
         /// <summary>
@@ -41,11 +39,9 @@ namespace Rock.Migrations
         /// </summary>
         public override void Down()
         {
-            AlterColumn( "dbo.PrayerRequest", "ApprovedOnDateTime", c => c.DateTime( storeType: "date" ) );
-            AlterColumn( "dbo.PrayerRequest", "EnteredDateTime", c => c.DateTime( nullable: false, storeType: "date" ) );
-
-            RenameColumn( "dbo.PrayerRequest", "EnteredDateTime", "EnteredDate" );
-            RenameColumn( "dbo.PrayerRequest", "ApprovedOnDateTime", "ApprovedOnDate" );
+            DeleteBlockAttributeValue( "6E8216F2-6A48-4EF8-ABA3-736C2468610D", "C80209A8-D9E0-4877-A8E3-1F7DBF64D4C2" );
+            DeleteBlockAttributeValue( "34EC5861-84EF-4D1A-8C89-D207B3004FDC", "C80209A8-D9E0-4877-A8E3-1F7DBF64D4C2" );
+            DeleteAttribute( "C80209A8-D9E0-4877-A8E3-1F7DBF64D4C2" );
         }
     }
 }

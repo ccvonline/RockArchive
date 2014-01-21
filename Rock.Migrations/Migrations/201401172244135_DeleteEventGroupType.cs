@@ -1,4 +1,4 @@
-﻿// <copyright>
+// <copyright>
 // Copyright 2013 by the Spark Development Network
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,18 +22,26 @@ namespace Rock.Migrations
     /// <summary>
     ///
     /// </summary>
-    public partial class PrayerRequestDateChanges : Rock.Migrations.RockMigration2
+    public partial class DeleteEventGroupType : Rock.Migrations.RockMigration2
     {
         /// <summary>
         /// Operations to be performed during the upgrade process.
         /// </summary>
         public override void Up()
         {
-            RenameColumn( "dbo.PrayerRequest", "EnteredDate", "EnteredDateTime" );
-            RenameColumn( "dbo.PrayerRequest", "ApprovedOnDate", "ApprovedOnDateTime" );
+            Sql( @"
+                IF EXISTS ( SELECT [Id] FROM [GroupType] WHERE [Guid] = '3311132b-268d-44e9-811a-a56a0835e50a' )
+                BEGIN
+                    DECLARE @GroupTypeId INT
+                    SET @GroupTypeId = (SELECT [Id] FROM [GroupType] WHERE [Guid] = '3311132b-268d-44e9-811a-a56a0835e50a')
 
-            AlterColumn( "dbo.PrayerRequest", "EnteredDateTime", c => c.DateTime( nullable: false ) );
-            AlterColumn( "dbo.PrayerRequest", "ApprovedOnDateTime", c => c.DateTime() );
+                    DELETE FROM [Attribute] WHERE [EntityTypeQualifierColumn] = 'GroupTypeId' AND [EntityTypeQualifierValue] = @GroupTypeId
+                    DELETE FROM [GroupTypeAssociation] WHERE [GroupTypeId] = @GroupTypeId
+                    DELETE FROM [Group] WHERE [GroupTypeId] = @GroupTypeId
+                    DELETE FROM [GroupType] WHERE [Id] = @GroupTypeId
+                    DELETE FROM [GroupTypeRole] WHERE [GroupTypeId] = @GroupTypeId
+                END
+" );
         }
         
         /// <summary>
@@ -41,11 +49,6 @@ namespace Rock.Migrations
         /// </summary>
         public override void Down()
         {
-            AlterColumn( "dbo.PrayerRequest", "ApprovedOnDateTime", c => c.DateTime( storeType: "date" ) );
-            AlterColumn( "dbo.PrayerRequest", "EnteredDateTime", c => c.DateTime( nullable: false, storeType: "date" ) );
-
-            RenameColumn( "dbo.PrayerRequest", "EnteredDateTime", "EnteredDate" );
-            RenameColumn( "dbo.PrayerRequest", "ApprovedOnDateTime", "ApprovedOnDate" );
         }
     }
 }
