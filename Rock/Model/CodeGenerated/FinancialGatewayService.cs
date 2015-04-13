@@ -28,15 +28,15 @@ using Rock.Data;
 namespace Rock.Model
 {
     /// <summary>
-    /// FinancialPersonSavedAccount Service class
+    /// FinancialGateway Service class
     /// </summary>
-    public partial class FinancialPersonSavedAccountService : Service<FinancialPersonSavedAccount>
+    public partial class FinancialGatewayService : Service<FinancialGateway>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="FinancialPersonSavedAccountService"/> class
+        /// Initializes a new instance of the <see cref="FinancialGatewayService"/> class
         /// </summary>
         /// <param name="context">The context.</param>
-        public FinancialPersonSavedAccountService(RockContext context) : base(context)
+        public FinancialGatewayService(RockContext context) : base(context)
         {
         }
 
@@ -48,9 +48,27 @@ namespace Rock.Model
         /// <returns>
         ///   <c>true</c> if this instance can delete the specified item; otherwise, <c>false</c>.
         /// </returns>
-        public bool CanDelete( FinancialPersonSavedAccount item, out string errorMessage )
+        public bool CanDelete( FinancialGateway item, out string errorMessage )
         {
             errorMessage = string.Empty;
+ 
+            if ( new Service<FinancialPersonSavedAccount>( Context ).Queryable().Any( a => a.FinancialGatewayId == item.Id ) )
+            {
+                errorMessage = string.Format( "This {0} is assigned to a {1}.", FinancialGateway.FriendlyTypeName, FinancialPersonSavedAccount.FriendlyTypeName );
+                return false;
+            }  
+ 
+            if ( new Service<FinancialScheduledTransaction>( Context ).Queryable().Any( a => a.FinancialGatewayId == item.Id ) )
+            {
+                errorMessage = string.Format( "This {0} is assigned to a {1}.", FinancialGateway.FriendlyTypeName, FinancialScheduledTransaction.FriendlyTypeName );
+                return false;
+            }  
+ 
+            if ( new Service<FinancialTransaction>( Context ).Queryable().Any( a => a.FinancialGatewayId == item.Id ) )
+            {
+                errorMessage = string.Format( "This {0} is assigned to a {1}.", FinancialGateway.FriendlyTypeName, FinancialTransaction.FriendlyTypeName );
+                return false;
+            }  
             return true;
         }
     }
@@ -58,45 +76,40 @@ namespace Rock.Model
     /// <summary>
     /// Generated Extension Methods
     /// </summary>
-    public static partial class FinancialPersonSavedAccountExtensionMethods
+    public static partial class FinancialGatewayExtensionMethods
     {
         /// <summary>
-        /// Clones this FinancialPersonSavedAccount object to a new FinancialPersonSavedAccount object
+        /// Clones this FinancialGateway object to a new FinancialGateway object
         /// </summary>
         /// <param name="source">The source.</param>
         /// <param name="deepCopy">if set to <c>true</c> a deep copy is made. If false, only the basic entity properties are copied.</param>
         /// <returns></returns>
-        public static FinancialPersonSavedAccount Clone( this FinancialPersonSavedAccount source, bool deepCopy )
+        public static FinancialGateway Clone( this FinancialGateway source, bool deepCopy )
         {
             if (deepCopy)
             {
-                return source.Clone() as FinancialPersonSavedAccount;
+                return source.Clone() as FinancialGateway;
             }
             else
             {
-                var target = new FinancialPersonSavedAccount();
+                var target = new FinancialGateway();
                 target.CopyPropertiesFrom( source );
                 return target;
             }
         }
 
         /// <summary>
-        /// Copies the properties from another FinancialPersonSavedAccount object to this FinancialPersonSavedAccount object
+        /// Copies the properties from another FinancialGateway object to this FinancialGateway object
         /// </summary>
         /// <param name="target">The target.</param>
         /// <param name="source">The source.</param>
-        public static void CopyPropertiesFrom( this FinancialPersonSavedAccount target, FinancialPersonSavedAccount source )
+        public static void CopyPropertiesFrom( this FinancialGateway target, FinancialGateway source )
         {
             target.Id = source.Id;
-            target.CreditCardTypeValueId = source.CreditCardTypeValueId;
-            target.CurrencyTypeValueId = source.CurrencyTypeValueId;
-            target.FinancialGatewayId = source.FinancialGatewayId;
-            target.GroupId = source.GroupId;
-            target.MaskedAccountNumber = source.MaskedAccountNumber;
+            target.Description = source.Description;
+            target.EntityTypeId = source.EntityTypeId;
+            target.IsActive = source.IsActive;
             target.Name = source.Name;
-            target.PersonAliasId = source.PersonAliasId;
-            target.ReferenceNumber = source.ReferenceNumber;
-            target.TransactionCode = source.TransactionCode;
             target.CreatedDateTime = source.CreatedDateTime;
             target.ModifiedDateTime = source.ModifiedDateTime;
             target.CreatedByPersonAliasId = source.CreatedByPersonAliasId;
