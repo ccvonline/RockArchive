@@ -36,19 +36,21 @@ namespace RockWeb.Blocks.Event
     /// <summary>
     /// Template block for developers to use to start a new block.
     /// </summary>
-    [DisplayName( "Calendar Item Occurrence List Lava" )]
+    [DisplayName( "Calendar Item Occurrence List By Audience Lava" )]
     [Category( "Event" )]
-    [Description( "Block that takes a calendar item and displays occurrences for it using Lava." )]
+    [Description( "Block that takes a audience and displays calendar item occurrences for it using Lava." )]
     
-    [EventItemField("Event Item", "The event item to use to display occurrences for.", order: 0)]
-    [CampusesField("Campuses", "List of which campuses to show occurences for. This setting will be ignored in the 'Use Campus Context' is enabled.", order:1)]
-    [BooleanField("Use Campus Context", "Determine if the campus should be read from the campus context of the page.", order: 2)]
-    [SlidingDateRangeField("Date Range", "Optional date range to filter the occurrences on.", false, order:3)]
-    [IntegerField("Max Occurrences", "The maximum number of occurrences to show.", false, 100, order: 4)]
-    [LinkedPage( "Registration Page", "The page to use for registrations.", order: 5 )]
-    [CodeEditorField("Lava Template", "The lava template to use for the results", CodeEditorMode.Liquid, CodeEditorTheme.Rock, defaultValue:"{% include '~~/Assets/Lava/EventItemOccurrenceList.lava' %}", order:6)]
-    [BooleanField("Enable Debug", "Show the lava merge fields.", order: 7)]
-    public partial class EventItemOccurrenceListLava : Rock.Web.UI.RockBlock
+    [TextField("List Title", "The title to make available in the lava.", false, "Upcoming Events", order: 0)]
+    [DefinedValueField(Rock.SystemGuid.DefinedType.MARKETING_CAMPAIGN_AUDIENCE_TYPE, "Audience", "The audience to show calendar items for.", order: 0)]
+    [EventCalendarField("Calendar", "Filters the events by a specific calendar.", false, order: 1)]
+    [CampusesField("Campuses", "List of which campuses to show occurences for. This setting will be ignored in the 'Use Campus Context' is enabled.", order:2)]
+    [BooleanField("Use Campus Context", "Determine if the campus should be read from the campus context of the page.", order: 3)]
+    [SlidingDateRangeField("Date Range", "Optional date range to filter the occurrences on.", false, order:4)]
+    [IntegerField("Max Occurrences", "The maximum number of occurrences to show.", false, 100, order: 5)]
+    [LinkedPage( "Registration Page", "The page to use for registrations.", order: 6 )]
+    [CodeEditorField( "Lava Template", "The lava template to use for the results", CodeEditorMode.Liquid, CodeEditorTheme.Rock, defaultValue: "{% include '~~/Assets/Lava/EventItemOccurrenceListByAudience.lava' %}", order: 7 )]
+    [BooleanField("Enable Debug", "Show the lava merge fields.", order: 8)]
+    public partial class EventItemOccurrenceListByAudienceLava : Rock.Web.UI.RockBlock
     {
         #region Fields
 
@@ -115,16 +117,16 @@ namespace RockWeb.Blocks.Event
 
         private void LoadContent()
         {
-            var eventItemGuid = GetAttributeValue( "EventItem" ).AsGuid();
+            var audienceGuid = GetAttributeValue( "Audience" ).AsGuid();
 
-            if ( eventItemGuid != Guid.Empty )
+            if ( audienceGuid != Guid.Empty )
             {
                 lMessages.Text = string.Empty;
                 RockContext rockContext = new RockContext();
 
                 // get event occurrences
                 var qry = new EventItemOccurrenceService( rockContext ).Queryable()
-                                            .Where( e => e.EventItem.Guid == eventItemGuid );
+                                            .Where( e => e.EventItem.EventItemAudiences.Any(a => a.DefinedValue.Guid == audienceGuid) );
 
                 // filter occurrences for campus
                 if ( GetAttributeValue( "UseCampusContext" ).AsBoolean() )
@@ -146,6 +148,14 @@ namespace RockWeb.Blocks.Event
                     }
                 }
 
+                // filter by calendar
+                var calendarGuid = GetAttributeValue( "Calendar" ).AsGuid();
+
+                if ( calendarGuid != Guid.Empty )
+                {
+                    qry = qry.Where( e => e.EventItem.EventCalendarItems.Any( c => c.EventCalendar.Guid == calendarGuid ) );
+                }
+
                 // retrieve occurrences
                 var itemOccurrences = qry.ToList();
 
@@ -165,13 +175,10 @@ namespace RockWeb.Blocks.Event
                 int maxItems = GetAttributeValue( "MaxOccurrences" ).AsInteger();
                 itemOccurrences = itemOccurrences.OrderBy( i => i.NextStartDateTime ).Take( maxItems ).ToList();
                 
-                // load event item
-                var eventItem = new EventItemService( rockContext ).Get( eventItemGuid );
-
                 // make lava merge fields
                 var mergeFields = new Dictionary<string, object>();
+                mergeFields.Add( "ListTitle", GetAttributeValue("ListTitle") );
                 mergeFields.Add( "RegistrationPage", LinkedPageUrl( "RegistrationPage", null ) );
-                mergeFields.Add( "EventItem", eventItem);
                 mergeFields.Add( "EventItemOccurrences", itemOccurrences );
                
                 lContent.Text = GetAttributeValue( "LavaTemplate" ).ResolveMergeFields( mergeFields );
@@ -183,8 +190,8 @@ namespace RockWeb.Blocks.Event
                     lDebug.Text = @"<div class='alert alert-info'>Due to the size of the lava members the debug info for this block has been supressed. Below are high-level details of
                                     the merge objects available.
                                     <ul>
+                                        <li>List Title - The title to pass to lava.
                                         <li>EventItemOccurrences - A list of EventItemOccurrences. View the EvenItemOccurrence model for these properties.</li>
-                                        <li>EventItem - The EventItem that was selected. View the EvenItem model for these properties.</li>
                                         <li>RegistrationPage  - String that contains the relative path to the registration page.</li>
                                         <li>Global Attribute  - Access to the Global Attributes.</li>
                                     </ul>
@@ -198,7 +205,7 @@ namespace RockWeb.Blocks.Event
             }
             else
             {
-                lMessages.Text = "<div class='alert alert-warning'>No event item is configured for this block.</div>";
+                lMessages.Text = "<div class='alert alert-warning'>No audience is configured for this block.</div>";
             }
         }
 
