@@ -22,17 +22,17 @@ using System.Web.UI.WebControls;
 using Rock.Attribute;
 using Rock.Model;
 
-namespace Rock.Reporting.DataSelect.Group
+namespace Rock.Reporting.DataSelect.GroupMember
 {
     /// <summary>
-    /// 
+    /// Report Field for Group Member Person.
     /// </summary>
-    [Description( "Show group's name as a optional link that navigates to the group's record" )]
+    [Description( "Show person's name as an optional link that navigates to the person's record" )]
     [Export( typeof( DataSelectComponent ) )]
-    [ExportMetadata( "ComponentName", "Select Group Name" )]
-
+    [ExportMetadata( "ComponentName", "Select Person Name" )]
     [BooleanField( "Show As Link", "", true )]
-    public class GroupLinkSelect : DataSelectComponent
+    [CustomRadioListField( "Display Order", "", "0^FirstName LastName,1^LastName&#44; FirstName", true, "0" )]
+    public class PersonLinkSelect : DataSelectComponent
     {
         /// <summary>
         /// Gets the name of the entity type. Filter should be an empty string
@@ -45,7 +45,7 @@ namespace Rock.Reporting.DataSelect.Group
         {
             get
             {
-                return typeof( Rock.Model.Group ).FullName;
+                return typeof( Rock.Model.GroupMember ).FullName;
             }
         }
 
@@ -59,49 +59,8 @@ namespace Rock.Reporting.DataSelect.Group
         {
             get
             {
-                return "Name";
+                return "Person Name";
             }
-        }
-
-        /// <summary>
-        /// Gets the type of the column field.
-        /// </summary>
-        /// <value>
-        /// The type of the column field.
-        /// </value>
-        public override Type ColumnFieldType
-        {
-            get
-            {
-                return typeof( string );
-            }
-        }
-
-        /// <summary>
-        /// Gets the default column header text.
-        /// </summary>
-        /// <value>
-        /// The default column header text.
-        /// </value>
-        public override string ColumnHeaderText
-        {
-            get
-            {
-                return "Name";
-            }
-        }
-
-        /// <summary>
-        /// Gets the title.
-        /// </summary>
-        /// <param name="entityType"></param>
-        /// <returns></returns>
-        /// <value>
-        /// The title.
-        /// </value>
-        public override string GetTitle( Type entityType )
-        {
-            return "Name Link";
         }
 
         /// <summary>
@@ -127,7 +86,10 @@ namespace Rock.Reporting.DataSelect.Group
         public override System.Web.UI.WebControls.DataControlField GetGridField( Type entityType, string selection )
         {
             var result = new BoundField();
+
+            // Disable encoding of field content because the value contains markup.
             result.HtmlEncode = false;
+
             return result;
         }
 
@@ -141,7 +103,16 @@ namespace Rock.Reporting.DataSelect.Group
         /// </value>
         public override string SortProperties( string selection )
         {
-            return "Name";
+            int displayOrder = this.GetAttributeValueFromSelection( "DisplayOrder", selection ).AsIntegerOrNull() ?? 0;
+
+            if ( displayOrder == 0 )
+            {
+                return "Person.NickName,Person.LastName";
+            }
+            else
+            {
+                return "Person.LastName,Person.NickName";
+            }
         }
 
         /// <summary>
@@ -154,22 +125,39 @@ namespace Rock.Reporting.DataSelect.Group
         public override System.Linq.Expressions.Expression GetExpression( Data.RockContext context, System.Linq.Expressions.MemberExpression entityIdProperty, string selection )
         {
             bool showAsLink = this.GetAttributeValueFromSelection( "ShowAsLink", selection ).AsBooleanOrNull() ?? false;
-            var groupQry = new GroupService( context ).Queryable();
+            int displayOrder = this.GetAttributeValueFromSelection( "DisplayOrder", selection ).AsIntegerOrNull() ?? 0;
+            
+            var memberQuery = new GroupMemberService( context ).Queryable();
 
-            IQueryable<string> groupLinkQry;
-            string baseGroupUrl = System.Web.VirtualPathUtility.ToAbsolute( "~/Group/" );
-
+            IQueryable<string> personLinkQuery;
+            
             if ( showAsLink )
             {
-                // return string in format: <a href='/group/{groupId}'>Name</a>
-                groupLinkQry = groupQry.Select( p => "<a href='" + baseGroupUrl + p.Id.ToString() + "'>" + p.Name + "</a>" );
+                // Return a string in the format: <a href='/person/{personId}'>LastName, NickName</a>
+                if ( displayOrder == 0 )
+                {
+                    personLinkQuery = memberQuery.Select( gm => "<a href='/person/" + gm.PersonId.ToString() + "'>" + gm.Person.NickName + " " + gm.Person.LastName + "</a>" );
+                }
+                else
+                {
+                    personLinkQuery = memberQuery.Select( gm => "<a href='/person/" + gm.PersonId.ToString() + "'>" + gm.Person.LastName + ", " + gm.Person.NickName + "</a>" );
+                }
             }
             else
             {
-                groupLinkQry = groupQry.Select( p => p.Name );
+                if ( displayOrder == 0 )
+                {
+                    personLinkQuery = memberQuery.Select( gm => gm.Person.NickName + " " + gm.Person.LastName );
+                }
+                else
+                {
+                    personLinkQuery = memberQuery.Select( gm => gm.Person.LastName + ", " + gm.Person.NickName );
+                }
             }
 
-            return SelectExpressionExtractor.Extract( groupLinkQry, entityIdProperty, "p" );
+            var exp = SelectExpressionExtractor.Extract( personLinkQuery, entityIdProperty, "gm" );
+
+            return exp; 
         }
     }
 }

@@ -17,21 +17,25 @@
 using System;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
+using System.Data.Entity.SqlServer;
 using System.Linq;
 using System.Linq.Expressions;
-
+using System.Web.UI;
+using System.Web.UI.WebControls;
 using Rock.Data;
 using Rock.Model;
+using Rock.Web.Cache;
+using Rock.Web.UI.Controls;
 
 namespace Rock.Reporting.DataSelect.Person
 {
     /// <summary>
     /// 
     /// </summary>
-    [Description( "Select the name of the Campus that the Person belongs to" )]
+    [Description( "Show the date of the last attendance in a group of type." )]
     [Export( typeof( DataSelectComponent ) )]
-    [ExportMetadata( "ComponentName", "Select Person's Campus" )]
-    public class CampusSelect : DataSelectComponent
+    [ExportMetadata( "ComponentName", "Select last attendance date of a person in a specific type of group." )]
+    public class LastAttendedGroupOfType : DataSelectComponent
     {
         #region Properties
 
@@ -58,10 +62,7 @@ namespace Rock.Reporting.DataSelect.Person
         /// </value>
         public override string Section
         {
-            get
-            {
-                return base.Section;
-            }
+            get { return "Groups"; }
         }
 
         /// <summary>
@@ -74,7 +75,7 @@ namespace Rock.Reporting.DataSelect.Person
         {
             get
             {
-                return "Campus";
+                return "Last Attendance In Group Of Type";
             }
         }
 
@@ -86,7 +87,7 @@ namespace Rock.Reporting.DataSelect.Person
         /// </value>
         public override Type ColumnFieldType
         {
-            get { return typeof( string ); }
+            get { return typeof( DateTime? ); }
         }
 
         /// <summary>
@@ -99,7 +100,7 @@ namespace Rock.Reporting.DataSelect.Person
         {
             get
             {
-                return "Campus";
+                return "Last Attendance In Group Of Type";
             }
         }
 
@@ -117,7 +118,7 @@ namespace Rock.Reporting.DataSelect.Person
         /// </value>
         public override string GetTitle( Type entityType )
         {
-            return "Campus";
+            return "Last Attendance In Group Of Type";
         }
 
         /// <summary>
@@ -129,60 +130,28 @@ namespace Rock.Reporting.DataSelect.Person
         /// <returns></returns>
         public override Expression GetExpression( RockContext context, MemberExpression entityIdProperty, string selection )
         {
-            // groupmembers
-            var groupMembers = context.Set<Rock.Model.GroupMember>();
+            Guid groupTypeGuid = selection.AsGuid();
 
-            // m
-            ParameterExpression groupMemberParameter = Expression.Parameter( typeof( Rock.Model.GroupMember ), "m" );
+            if ( groupTypeGuid != Guid.Empty )
+            {
+                AttendanceService attendanceService = new AttendanceService( context );
+                var groupAttendanceQry = attendanceService.Queryable().Where( a => a.Group.GroupType.Guid == groupTypeGuid);
 
-            // m.PersonId
-            MemberExpression memberPersonIdProperty = Expression.Property( groupMemberParameter, "PersonId" );
+                var qry = new PersonService( context ).Queryable()
+                    .Select( p => groupAttendanceQry.Where( xx => xx.PersonAlias.PersonId == p.Id ).Max( xx => xx.StartDateTime ));
 
-            // m.Group
-            MemberExpression groupProperty = Expression.Property( groupMemberParameter, "Group" );
-            MemberExpression groupCampusProperty = Expression.Property( groupProperty, "Campus" );
+                Expression selectExpression = SelectExpressionExtractor.Extract( qry, entityIdProperty, "p" );
 
-            // m.Group.GroupType
-            MemberExpression groupTypeProperty = Expression.Property( groupProperty, "GroupType" );
+                return selectExpression;
+            }
 
-            // m.Group.GroupType.Guid
-            MemberExpression groupTypeGuidProperty = Expression.Property( groupTypeProperty, "Guid" );
-
-            // family group type guid
-            Expression groupTypeConstant = Expression.Constant( Rock.SystemGuid.GroupType.GROUPTYPE_FAMILY.AsGuid() );
-
-            // m.PersonId == p.Id
-            Expression personCompare = Expression.Equal( memberPersonIdProperty, entityIdProperty );
-
-            // m.Group.GroupType.Guid == GROUPTYPE_FAMILY guid
-            Expression groupTypeCompare = Expression.Equal( groupTypeGuidProperty, groupTypeConstant );
-
-            // m.PersonID == p.Id && m.Group.GroupType.Guid == GROUPTYPE_FAMILY guid
-            Expression andExpression = Expression.And( personCompare, groupTypeCompare );
-
-            // m => m.PersonID == p.Id && m.Group.GroupType.Guid == GROUPTYPE_FAMILY guid
-            var compare = new Expression[] {
-                Expression.Constant(groupMembers),
-                Expression.Lambda<Func<Rock.Model.GroupMember, bool>>(andExpression, new ParameterExpression[] { groupMemberParameter } )
-            };
-
-            // groupmembers.Where(m => m.PersonID == p.Id && m.Group.GroupType.Guid == GROUPTYPE_FAMILY guid)
-            Expression whereExpression = Expression.Call( typeof( Queryable ), "Where", new Type[] { typeof( Rock.Model.GroupMember ) }, compare );
-
-            // m.Group.Campus.Name
-            MemberExpression groupCampusName = Expression.Property( groupCampusProperty, "Name" );
-
-            // m => m.Group.Campus.Name
-            Expression groupCampusNameLambda = Expression.Lambda( groupCampusName, new ParameterExpression[] { groupMemberParameter } );
-
-            // groupmembers.Where(m => m.PersonID == p.Id && m.Group.GroupType.Guid == GROUPTYPE_FAMILY guid).Select( m => m.Group.Name);
-            Expression selectName = Expression.Call( typeof( Queryable ), "Select", new Type[] { typeof( Rock.Model.GroupMember ), typeof( string ) }, whereExpression, groupCampusNameLambda );
-
-            // groupmembers.Where(m => m.PersonID == p.Id && m.Group.GroupType.Guid == GROUPTYPE_FAMILY guid).Select( m => m.Group.Name).FirstOrDefault();
-            Expression firstOrDefault = Expression.Call( typeof( Queryable ), "FirstOrDefault", new Type[] { typeof( string ) }, selectName );
-
-            return firstOrDefault;
+            return null;
         }
+
+        /// <summary>
+        /// The GroupTypePicker
+        /// </summary>
+        private GroupTypePicker groupTypePicker = null;
 
         /// <summary>
         /// Creates the child controls.
@@ -191,7 +160,21 @@ namespace Rock.Reporting.DataSelect.Person
         /// <returns></returns>
         public override System.Web.UI.Control[] CreateChildControls( System.Web.UI.Control parentControl )
         {
-            return new System.Web.UI.Control[] { };
+            int? selectedGroupTypeId = null;
+            if (groupTypePicker != null)
+            {
+                selectedGroupTypeId = groupTypePicker.SelectedGroupTypeId;
+            }
+            
+            groupTypePicker = new GroupTypePicker();
+            groupTypePicker.ID = parentControl.ID + "_0";
+            groupTypePicker.Label = "Group Type";
+            groupTypePicker.GroupTypes = new GroupTypeService( new RockContext() ).Queryable().OrderBy( a => a.Order ).ThenBy( a => a.Name ).ToList();
+            groupTypePicker.AutoPostBack = true;
+            groupTypePicker.SelectedGroupTypeId = selectedGroupTypeId;
+            parentControl.Controls.Add( groupTypePicker );
+
+            return new Control[1] { groupTypePicker };
         }
 
         /// <summary>
@@ -211,8 +194,19 @@ namespace Rock.Reporting.DataSelect.Person
         /// <param name="controls">The controls.</param>
         /// <returns></returns>
         public override string GetSelection( System.Web.UI.Control[] controls )
-        {
-            return null;
+        {            
+            // Get the selected Group Type as a Guid.
+            var groupTypeId = ( controls[0] as GroupTypePicker ).SelectedValueAsId().GetValueOrDefault(0);
+
+            string value1 = string.Empty;
+
+            if (groupTypeId > 0)
+            {
+                var groupType = GroupTypeCache.Read(groupTypeId);
+                value1 = (groupType == null) ? string.Empty : groupType.Guid.ToString();
+            }
+
+            return value1;
         }
 
         /// <summary>
@@ -222,7 +216,8 @@ namespace Rock.Reporting.DataSelect.Person
         /// <param name="selection">The selection.</param>
         public override void SetSelection( System.Web.UI.Control[] controls, string selection )
         {
-            // nothing to do
+            var groupType = new GroupTypeService( new RockContext() ).Get( selection.AsGuid() );
+            ( controls[0] as GroupTypePicker ).SetValue( groupType != null ? groupType.Id : (int?)null );
         }
 
         #endregion
