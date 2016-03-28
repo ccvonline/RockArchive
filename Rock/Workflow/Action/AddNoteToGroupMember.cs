@@ -32,9 +32,9 @@ namespace Rock.Workflow.Action
     /// Sets an group member's note.
     /// </summary>
     [ActionCategory( "Group Update" )]
-    [Description( "Sets a person's group member note in a specified group." )]
+    [Description( "Adds a note to a group member." )]
     [Export( typeof( ActionComponent ) )]
-    [ExportMetadata( "ComponentName", "Set Group Member Note" )]
+    [ExportMetadata( "ComponentName", "Add Note To Group Member" )]
 
     [WorkflowAttribute( "Person", "Workflow attribute that contains the person to update in the group.", true, "", "", 0, null,
         new string[] { "Rock.Field.Types.PersonFieldType" } )]
@@ -42,9 +42,19 @@ namespace Rock.Workflow.Action
     [WorkflowAttribute( "Group", "Workflow Attribute that contains the group the person is in.", true, "", "", 1, null,
         new string[] { "Rock.Field.Types.GroupFieldType" } )]
 
-    [WorkflowTextOrAttribute( "Note", "Attribute Value", "Text or workflow attribute that contains the text to set the group member note to. <span class='tip tip-lava'></span>", true, "", "", 2, "Note",
-        new string[] { "Rock.Field.Types.TextFieldType" }, 3 )]
-    public class SetGroupMemberNote : ActionComponent
+    [NoteTypeField( "Note Type", "The type of note to add to the group member.", false, "Rock.Model.GroupMember", order: 2 )]
+
+    [WorkflowTextOrAttribute( "Caption", "Attribute Value", "Text or workflow attribute that contains the caption to set the group member note to. <span class='tip tip-lava'></span>", true, "", "", 3, "Caption",
+        new string[] { "Rock.Field.Types.TextFieldType" } )]
+
+    [WorkflowTextOrAttribute( "Note", "Attribute Value", "Text or workflow attribute that contains the text to set the group member note to. <span class='tip tip-lava'></span>", true, "", "", 4, "Note",
+        new string[] { "Rock.Field.Types.MemoFieldType", "Rock.Field.Types.TextFieldType" }, 3 )]
+
+    [WorkflowTextOrAttribute( "Is Alert", "Attribute Value", "Boolean (must enter True/False) or workflow attribute that contains whether the note should be an alert.", false, "False", "", 5, "IsAlert",
+        new string[] { "Rock.Field.Types.BooleanFieldType" } )]
+
+    
+    public class AddNoteToGroupMember : ActionComponent
     {
         /// <summary>
         /// Executes the specified workflow.
@@ -62,6 +72,8 @@ namespace Rock.Workflow.Action
             Person person = null;
             Group group = null;
             string noteValue = string.Empty;
+            string captionValue = string.Empty;
+            bool isAlert = false;
 
             // get the group attribute
             Guid groupAttributeGuid = GetAttributeValue( action, "Group" ).AsGuid();
@@ -79,7 +91,7 @@ namespace Rock.Workflow.Action
                         errorMessages.Add( "The group provided does not exist." );
                     }
                 }
-                else
+                else 
                 {
                     errorMessages.Add( "Invalid group provided." );
                 }
@@ -105,15 +117,27 @@ namespace Rock.Workflow.Action
                                     .Where( p => p.Guid.Equals( personAliasGuid ) )
                                     .Select( p => p.Person )
                                     .FirstOrDefault();
-
-                    if (person == null )
-                    {
-                        errorMessages.Add( "The person could not be found." );
-                    }
                 }
                 else
                 {
-                    errorMessages.Add( "Invalid person provided." );
+                    errorMessages.Add( "The person could not be found!" );
+                }
+            }
+
+            // get caption
+            captionValue = GetAttributeValue( action, "Caption" );
+            guid = captionValue.AsGuid();
+            if ( guid.IsEmpty() )
+            {
+                captionValue = captionValue.ResolveMergeFields( GetMergeFields( action ) );
+            }
+            else
+            {
+                var workflowAttributeValue = action.GetWorklowAttributeValue( guid );
+
+                if ( workflowAttributeValue != null )
+                {
+                    captionValue = workflowAttributeValue;
                 }
             }
 
@@ -134,8 +158,44 @@ namespace Rock.Workflow.Action
                 }
             }
 
+            // get alert type
+            string isAlertString = GetAttributeValue( action, "IsAlert" );
+            guid = isAlertString.AsGuid();
+            if ( guid.IsEmpty() )
+            {
+                isAlert = isAlertString.AsBoolean();
+            }
+            else
+            {
+                var workflowAttributeValue = action.GetWorklowAttributeValue( guid );
+
+                if ( workflowAttributeValue != null )
+                {
+                    isAlert = workflowAttributeValue.AsBoolean();
+                }
+            }
+
+            // get note type
+            NoteTypeCache noteType = null;
+            Guid noteTypeGuid = GetAttributeValue( action, "NoteType" ).AsGuid();
+            
+            if ( !noteTypeGuid.IsEmpty() )
+            {
+                noteType = NoteTypeCache.Read( noteTypeGuid, rockContext );
+
+                if (noteType == null )
+                {
+                    errorMessages.Add( "The note type provided does not exist." );
+                }
+            } 
+            else
+            {
+                errorMessages.Add( "Invalid note type provided." );
+            }
+
+            
             // set note
-            if ( group != null && person != null )
+            if ( group != null && person != null && noteType != null )
             {
                 var groupMembers = new GroupMemberService( rockContext ).Queryable()
                                 .Where( m => m.Group.Guid == groupGuid && m.PersonId == person.Id ).ToList();
@@ -144,13 +204,22 @@ namespace Rock.Workflow.Action
                 {
                     foreach ( var groupMember in groupMembers )
                     {
-                        groupMember.Note = noteValue;
+                        NoteService noteservice = new NoteService( rockContext );
+                        Note note = new Note();
+                        noteservice.Add( note );
+
+                        note.NoteTypeId = noteType.Id;
+                        note.Text = noteValue;
+                        note.IsAlert = isAlert;
+                        note.Caption = captionValue;
+                        note.EntityId = groupMember.Id;
+
                         rockContext.SaveChanges();
                     }
                 }
                 else
                 {
-                    errorMessages.Add( string.Format( "{0} is not a member of the group {1}.", person.FullName, group.Name ) );
+                    errorMessages.Add( string.Format("{0} is not a member of the group {1}.", person.FullName, group.Name ));
                 }
             }
 
