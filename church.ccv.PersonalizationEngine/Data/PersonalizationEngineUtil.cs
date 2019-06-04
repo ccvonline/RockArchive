@@ -121,7 +121,7 @@ namespace church.ccv.PersonalizationEngine.Data
             }
         }
 
-        public static List<Campaign> GetCampaigns( string campaignTypeList, DateTime? startDate = null, DateTime? endDate = null, bool isDefault = false )
+        static List<Campaign> GetCampaigns( string campaignTypeList, DateTime? startDate = null, DateTime? endDate = null, bool isDefault = false )
         {
             // get all campaigns of the provided types, that fall within the requested date range
             
@@ -277,15 +277,19 @@ namespace church.ccv.PersonalizationEngine.Data
         #endregion
 
         #region General
-        public static List<Campaign> GetRelevantCampaign( string campaignTypeList, int personId, int numCampaigns = 1 )
+        public static List<Campaign> GetRelevantCampaign( string campaignTypeList, int personId, int numCampaigns = 1, DateTime? targetDate = null )
         {
             //given a person id, get whatever is less - the number of relevant campaigns that exist, or numCampaigns.
+
+            // if no target date is passed in, use Now. (Target date is used generally for debugging a future time)
+            if ( targetDate == null )
+                targetDate = DateTime.Now;
 
             // guard against passing in <= 0 numbers
             numCampaigns = Math.Max( numCampaigns, 1 );
 
-            // get all the campaigns that match the center card
-            var campaignList = GetCampaigns( campaignTypeList, DateTime.Now, DateTime.Now, false );
+            // get all the campaigns that match
+            var campaignList = GetCampaigns( campaignTypeList, targetDate, targetDate, false );
 
             // now go thru their personas, and take the first campaign with a persona that fits
             List<Campaign> relevantCampaigns = new List<Campaign>( );
@@ -331,8 +335,8 @@ namespace church.ccv.PersonalizationEngine.Data
             // default campaigns are campaigns appropriate for anyone, and that are not tied to a persona
             using ( RockContext rockContext = new RockContext( ) )
             {
-                // get all the default campaigns
-                var defaultCampaigns = GetCampaigns( campaignTypeList, DateTime.Now, DateTime.Now, true );
+                // get all the default campaigns (default campaigns shouldn't care about start / end date)
+                var defaultCampaigns = GetCampaigns( campaignTypeList, null, null, true );
 
                 // now take only what they asked for (a little less efficient than doing this at the database level, but results in simpler code)
                 
