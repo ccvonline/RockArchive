@@ -1,0 +1,195 @@
+/* Zones & Sections */
+#zone-sectiona {
+    min-height: 300px;
+}
+
+#pnlSportDetails {
+    margin-bottom: 115px;
+}
+
+#pnlSportDetails h3, #pnlSportDetails h4, #pnlSportDetails h5 {
+    color: #E73D30;
+}
+
+#pnlSportDetails p {
+    color: #6e6e6e;
+}
+
+/* Campus / Sport dropdown */
+#pnlSportDetails .dropdown-row {
+    display: flex;
+    justify-content: flex-end;
+}
+
+#pnlSportDetails .dropdown-row .select-dropdown .select-dropdown-button {
+    border: none;
+
+}
+
+#pnlSportDetails .dropdown-row .select-dropdown .select-dropdown-button b {
+    margin-left: 15px;
+}
+
+/* End Campus / Sport dropdown */
+
+.sport-title {
+    padding-left: 45px;
+}
+
+.sport-title h3 {
+    padding: 30px 0 25px 0;
+}
+
+.sport-title p {
+    font-weight: 300;
+    font-size: 18px;
+    line-height: 24px;
+    padding-bottom: 65px;
+}
+
+.left img {
+    width: 450px;
+    height: auto;
+}
+
+.right {
+    display: flex;
+    flex-direction: column;
+}
+
+.right h3 {
+    padding-bottom: 15px;
+}
+
+.right a {
+    color: #1ea0d4;
+    text-decoration: none;
+    font-family: heebo;
+    font-size: 26px;
+    line-height: 29px;
+    font-weight: 400;
+    padding-bottom: 30px; 
+}
+
+.rules-panel object {
+    min-height: 600px;
+}
+
+.rules-panel h3 {
+    text-align: center;
+    padding: 20px 0;
+}
+
+#pdfRulesDownload {
+    display: none;
+}
+
+.mobile-register {
+    display: none;
+}
+
+/* End Zones & Sections */
+
+/* Overrides */
+.left-and-right-container {
+    align-items: unset;
+}
+
+#zone-sectiona .left-and-right-container {
+    padding-top: unset;
+}
+
+.left-and-right-container .right {
+    padding-top: 20px;
+}
+
+/* End Overrides */
+
+/**** Responsive Styling ****/
+@media screen and (max-width: 1439.98px) {
+    .responsive-hide {
+        display: none;
+    }
+
+    .left img {
+        width: 400px;
+    }
+}
+
+/**** Tablet Styling ****/
+@media screen and (max-width: 1023.98px) {
+    .sport-title h3 {
+        padding: 25px 0 15px 0;
+    }
+
+    .sport-title p {
+        font-size: 25px;
+        line-height: 32px;
+        font-weight: 400;
+        padding-bottom: 45px;
+    }
+
+    .left-and-right-container .left {
+        margin-left: 0;
+    }
+
+    .left img {
+        width: 100%;
+    }
+
+    .left-and-right-container .right {
+        align-items: flex-start;
+    }
+}
+
+/* End Tablet Styling */
+
+/**** Phone Styling ****/
+@media screen and (max-width: 767.98px) {
+    #pnlSportDetails {
+        margin-bottom: 0;
+    }
+    .navigation-and-title {
+        display: flex;
+        flex-direction: column-reverse;
+    }
+
+    #pnlSportDetails .dropdown-row {
+        flex-direction: column-reverse;
+        justify-content: flex-start;
+    }
+
+    .select-dropdown {
+        padding: 10px 0;
+    }
+
+    #pnlSportDetails .dropdown-row .select-dropdown .select-dropdown-button {
+        border: 2px solid #dddddd;        
+    }
+
+    .sport-title {
+        padding-left: 0;
+    }
+
+    .sport-title p {
+        font-size: 12.5px;
+        line-height: 16px;
+        padding-bottom: 0;
+    }
+
+    .tabbed-panel-view-cards {
+        margin: 0 -15px;
+        border-radius: 0;
+    }
+
+    .tabbed-panel-view-cards .background-card {
+        margin: 20px 15px;
+        padding: 0;
+    }
+
+    .mobile-register {
+        display: flex;
+        margin: -30px 20px 20px 20px;
+        padding: 15px 0;
+    }
+}
