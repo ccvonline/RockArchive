@@ -1,0 +1,18 @@
+{% comment %} 
+    {% assign title = "Sport Title goes here" %}
+    {% assign content = "Content goes here" %}
+    {% assign sport = "Sport here" %}
+
+    {% include '~~/Assets/Lava/home/sports/sports-infosection.lava' %}
+{% endcomment %}
+<div>
+    <h3>{{ title }}</h3>
+    <p>{{ content }}</p>
+</div>
+<br />
+<div>
+    <p><strong>Programs vary by Location</strong></p>
+    <div class="btn-row">    
+        {% include '~~/Assets/Lava/home/sports/campuses-dropdown.lava' %}
+    </div>
+</div>
