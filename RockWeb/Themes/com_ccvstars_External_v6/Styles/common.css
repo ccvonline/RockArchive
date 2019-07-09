@@ -120,7 +120,7 @@ a:focus {
 }
 
 .dark a {
-    color: #EA3E29;
+    color: #E73E30;
 }
 
 /**** End Defaults ****/
@@ -213,6 +213,14 @@ a:focus {
     border: none;
     -webkit-appearance: none;
     padding: 10px 20px;
+}
+
+.navigation-primary-item-button a {
+    color: #E73D30;
+}
+
+.navigation-primary-item-button a:hover {
+    text-decoration: none;
 }
 
 .navigation-primary-dropdown-content-wrapper {
@@ -308,7 +316,8 @@ a:focus {
 
 .loginstatus .dropdown-menu li a {
     color: #FFFFFF;
-    padding: 3px 5px;
+    padding: 2px 15px;
+    margin: 0;
     border: unset;
     font-family: akrobat;
     font-size: 13px;
@@ -320,9 +329,12 @@ a:focus {
 }
 
 .masthead-navitem, .loginstatus li a {
-    margin: 7px 0px;
     padding: 6px 12px;
     border: 2px solid #555555;
+}
+
+.stars-create-account {
+    margin-left: 20px;
 }
 
 .masthead-navitem {
@@ -332,7 +344,13 @@ a:focus {
 .masthead-navitem:hover, .loginstatus li a:hover {
     text-decoration: none;
     color: #FFFFFF ;
- }
+}
+
+/* create account admin bar hacky hack position fix */
+.stars-create-account .config-bar {
+    margin-left: -200px;
+    margin-top: 40px;
+}
 
 /* bootstrap override */
 .nav>li>a:hover, .nav>li>a:focus {
@@ -724,137 +742,259 @@ a:focus {
 .our-campuses-map-window {
     background: #777;
  }
- 
-.infowindow {
-    text-align: left;
-}
-
-.infowindow p {
-    margin: 0;
-}
 
 .our-campuses-map {
     min-height: 550px;
 }
 
-.icon-details {
+.campus-info-window {
     display: flex;
-    justify-content: space-between;
-    margin-left: 50px;
-    max-width: 300px;
-    width: 300px;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+ 
+.campus-info-window h6, .campus-info-window p {
+    text-align: left;
+    color: #4f4f4f;
 }
 
-.campus-info-window img {
-    width: 25px;
-    height: 25px;
+.campus-info-window h6 {
+    font-size: 18px;
+    line-height: 20px;
+    padding: 0 0 10px 0;
+}
+
+.campus-info-window p {
+    margin: 0;
+}
+
+.campus-info-window a {
+    font-weight: 500;
+    color: #E73D30;
+}
+
+.sports-offered {
+    display: flex;
+    padding-bottom: 10px;
+}
+
+.sports-offered img {
+    width: 33px;
+    height: 33px;
+    margin-right: 10px;
+}
+
+/* google overrides */
+.gm-style .gm-style-iw-c {
+    border-radius: 0;
 }
 
 /**** End Sections ****/
 
+/**** Start Event Card Styling ****/
+.event-cards-row {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 20px 0px;
+}
+
+.event-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    margin: 10px;
+    width: 31%;
+    min-height: 500px;
+    min-height: 545px;
+    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 6px, rgba(0, 0, 0, 0.12) 0px 1px 4px;
+    border-radius: 5px;
+    border: unset;
+    border-width: unset;
+    background-color: unset;
+    z-index: 1;
+    overflow: hidden;
+}
+ 
+.event-card .image img {
+    object-fit: cover;
+    width: 100%;
+    min-height: 200px;
+    max-height: 200px;
+}
+
+.event-card-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex-grow: 1;
+    padding: 10px 16px;
+    min-height: 130px;
+}
+
+.event-card-content p {
+    color: #4f4f4f;
+}
+
+.event-card-title {
+    padding: 10px 16px 0 16px;
+}
+
+.event-card-title h4 {
+    color: #333333;
+    font-size: 21px;
+    line-height: 23px;
+}
+
+.event-card-footer {
+    padding: 0px 16px 10px 16px;
+}
+
+.event-card-footer .link a {
+    color: #E73D30;
+    text-transform: uppercase;
+}
+
+.link {
+    text-align: right;
+}
+
+/* Nav buttons */
+.event-cards-header .nav-buttons {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.event-cards-header {
+    text-align: center;
+}
+
+.event-cards-header h3 {
+    font-size: 50px;
+    color: #E73D30;
+}
+
+.event-cards-header .nav-button {
+    color: #E73D30;
+    font-size: 24px; 
+    transition: all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms; 
+    background-color: unset;
+    border-width: unset;
+    border-style: unset;
+    border-color: unset;
+    border-image: unset;
+}
+
+/**** End Event Card Styling ****/
+
 /**** Footer ****/
 .mainfooter {
     background-color: #000;
-	padding: 0 10%;
+    padding: 50px 10%;
+    min-height: 310px;
 }
 
 .footer {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    height: 310px;
-    padding-top: 3%;
 }
 
-.footer-copyright {
-    color: rgba(213,213,213,0.87); 
-    padding-top: 10px; 
-    font-family: Roboto Condensed; 
-    font-size: 12px;
-	line-height: 14px;
-    font-weight: 200;
-    text-align: center;
-}
-
-.footer-social {
+.footer-right {
     display: flex;
-    justify-content: center;
-	padding-top: 15px;
+    flex-direction: column;
+    align-items: center;
 }
 
-.footer-social a{
-    padding-right: 4%;
+.footer-right .stars-logo img {
+    width: 215px;
+    height: 130px;
+    margin-right: 0;
 }
 
-.footer-social i {
-    color: #FFFFFF;
-    font-size: 30px;
-    margin: 10px 0;
-    padding: 0 20px;
+.footer-right .ccv-logo img {
+    width: 60px;
+    height: 30px;
+    background-color: #FFFFFF;
+    border-radius: 6px;
+    margin: 10px 0 10px 18px;
 }
 
-.footer-social i:first-of-type {
-    margin-left: -20px;
-}
-
-.footer-links .nav > li > a {
-    background-color: #000;
-    color: white;
-}
-
-.footer-links {
+.footer-center {
     display: flex;
     justify-content: space-around;
-	font-family: akrobat;
-    font-size: 14px;
-	line-height: 22px;
-    font-weight: bold;
-    text-transform: uppercase;
-    color: white;
-	padding-top: 15px;
-}
-
-.footer-links a:hover {
-	text-decoration: none;
+    padding-top: 15px;
+    margin-left: 140px;
 }
 
 .footer-links-section {
     display: flex;
     flex-direction: column;
-    width: 200px;
+    min-width: 200px;
 }
 
 .footer-links-section h5 {
-    font-size: 20px;
-    width: 80%;
-    margin: 0;
-    margin-bottom: 10px;
-    line-height: 22px;
-    padding: 0;
-    text-align: left;
+    font-size: 24px;
+    line-height: 10px;
+    letter-spacing: -1px;
+    font-weight: 800;
+    margin-bottom: 20px;
 }
 
 .footer-links-section a {
-    color: rgba(213,213,213,0.87);
-    display: flex;
-    flex-direction: row;
-    justify-content: left;
+    font-size: 19px;
+    line-height: 25px;
+    letter-spacing: -.5px;
+    font-weight: 600;
+    color: #b2b2b2;
+    -webkit-font-smoothing: antialiased;
 }
 
-.mainfooter-dark a {
-    text-decoration: none;
-    font-family: akrobat;
+.footer-links-section a:hover {
+	text-decoration: none;
+}
+
+.footer-left {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    padding-top: 10px;
+}
+
+.footer-social {
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 25px;
+}
+
+.footer-social a:first-of-type {
+    padding-right: 15px;
 }
 
 .footer-social img {
-    height: 70px;
-	width: 70px;
+    height: 67px;
+	width: 67px;
 }
 
+.footer-copyright {
+    font-family: Roboto Condensed; 
+    color: #b2b2b2;
+    font-size: 13px;
+	line-height: 21.5px;
+    font-weight: 300;
+    text-align: center;
+}
+
+.server-name {
+    color: #b2b2b2;
+    padding-top: 25px;
+    margin-left: 18px;
+}
 /**** End Footer ****/
 
 /**** loading spinner ****/
-/* html for spinner
+/* cheatsheet html to use for spinner
     <div class="loading">
         <div class="lds-spinner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
     </div>
@@ -1010,6 +1150,10 @@ a:focus {
         line-height: 17px;
     }
 
+    .navigation-primary-item-button {
+        text-align: center;
+    }
+
     /* Navigation */
     .masthead-upper {
         padding: 0 30px 0 60px;
@@ -1082,6 +1226,31 @@ a:focus {
     .graphicSection p {
         font-size: 21px;
         line-height: 24px;
+    }
+
+    /* Start Event Card Styling */
+    .event-card {
+        width: 45%;
+        padding-bottom: 15px;
+    }
+
+    /* End Event Card Styling */
+
+    /* footer */
+    .mainfooter {
+        padding: 50px 5%;
+    }
+
+    .footer-center {
+        margin-left: 40px;
+    }
+
+    .footer-links-section {
+        min-width: 150px;
+    }
+
+    .footer-links-section:first-of-type {
+        margin-right: 20px;
     }
 }
 /**** End Small Desktop ****/
@@ -1196,53 +1365,48 @@ a:focus {
         font-weight: 600;
     }
 
+    /* Start Event Card Styling */
+    .event-card {
+        width: 45%;
+        padding-bottom: 15px;
+    }
+
+    /* End Event Card Styling */
+
     /* Footer */
-    .mainfooter {
-        padding-top: 15px;
-        padding-bottom: 50px;
-        padding: 5% 1% 5% 1%;
-    }
-
-    .footer-links {
-        margin-bottom: 20px;
-        display: block;
-        text-align: center;
-    }
-
-    .footer-social {
-        justify-content: space-around;
-    }
-
-    .footer-social img {
-        height: 50px;
-        width: 50px;
-    }
-
     .footer {
-        height: unset;
-        display: flex;
         flex-direction: column;
         align-items: center;
-        padding: 20px 0;
+    }
+
+    .footer-center {
+        width: 100%;
+        margin-left: 0;
+        margin-top: 20px;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
     }
 
     .footer-links-section {
-        padding: 2% 0;
-        min-width: 200px;
-        width: unset;
+        width: 100%;
+        align-items: center;
+        padding-bottom: 40px;
     }
 
-    .footer-links-section a {
-        color: rgba(213,213,213,0.87);
-        display: block;
+    .footer-links-section:first-of-type {
+        margin-right: 0;
     }
 
     .footer-links-section h5 {
-        font-size: 20px;
-        color: #fff;
         width: 100%;
-        margin: 1%;
         text-align: center;
+        border-bottom: 2px solid #b2b2b2;
+        padding-bottom: 20px;
+    }
+
+    .footer-social {
+        padding-bottom: 13px;
     }
     
     /* End Footer */
@@ -1471,6 +1635,35 @@ a:focus {
     .mobile-items .tab-selected {
         color: #333 !important;
         background-color: transparent;
+    }
+
+    /* Start Event Card Styling */
+    .event-card {
+        width: 90%;
+        padding-bottom: 15px;
+    }
+
+    .event-cards-row-mobile {
+        display: block;
+    }
+
+    .event-cards-row {
+        display: none; 
+    }
+
+    .event-cards-header h3 {
+        margin: 5%;
+    }
+
+    /* End Event Card Styling */
+
+    /* footer */
+    .footer-right .stars-logo {
+        height: unset;
+    }
+
+    .server-name {
+        margin-left: 0;
     }
 }
 
