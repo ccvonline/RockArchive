@@ -65,8 +65,6 @@
 .person-details-item {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    align-items: baseline;
 }
 
 hr {
@@ -74,6 +72,10 @@ hr {
     text-align: left;
     width: 150px;
     margin: 0 0 5px 0;
+}
+
+#pnlGroupView {
+    margin: 0px -15px 40px -15px;
 }
 
 table {
@@ -88,7 +90,7 @@ th {
 }  
 
 table tr:nth-child(even) {
-    background-color: #eee;
+    background-color: #f7f7f7;
 }
 
 table tr:nth-child(odd) {
@@ -124,7 +126,53 @@ a:hover, a:focus {
 
 /* End Person Info */
 
+
+/* Start Table */
+.desktop-view-table {
+    width: 100%;
+}
+
+.player-mobile-view-table {
+    display: none;
+}
+
+.coach-mobile-view-table {
+    display: none;
+}
+
+.dashboard-title {
+    margin: 0 15px;
+}
+
+.dashboard-title h2 {
+    color: #000000;
+}
+
+.desktop-view {
+    display: block;
+}
+
+.mobile-view {
+    display: none;
+}
+
+td > img {
+    margin: 0 10px;
+}
+
+td > a > img {
+    margin: 0 10px;
+}
+
+/* End Table */
+
+
 /* Overrides */
+
+.tabbed-panel-view-cards {
+    background-color: #ffffff;
+}
+
 .person-row p {
     color: #000000;
 }
@@ -148,15 +196,50 @@ h5 {
         background-image: url("/Themes/com_ccvstars_External_v6/Assets/Images/hero/hero-mobile-dashboard.jpg");
     }
 
+    #section-a-bg {
+        background-color: #ededed;
+    }
+    
+    #section-b-bg {
+        background-color: #ffffff;
+    }
+
+    #zone-sectionb {
+        margin: 0;
+    }
+
     /* End Zones & Sections */
 
+    /* Start Overrides */
+    .tabbed-panel-view-cards .header {
+        padding: 20px;
+    }
+
+    /* End Overrides */
+
     /* Person Info */
+    .person-details-item {
+        width: 100%;
+    }
+
+    .item-headers {
+        width: 20%;
+    }
+
+    .person-details div:nth-child(1) {
+        padding-right: 0px;
+    }
+
+    .person-details-item a {
+        width: 100%;
+    }
+    
     #player-panel, #coach-panel {
         padding: 0;
     }
 
     .person-row {
-        display: block;
+        flex-direction: column;
     }
 
     .person-photo img {
@@ -168,8 +251,91 @@ h5 {
         padding-bottom: 5%;
     }
 
+    .person-profile-info {
+        margin-left: 0;
+    }
+
     /* End Person Info */
+
+    /* Start Table */
+    table, th, td {
+        border: 1px solid rgb(224, 224, 224);
+    }
+
+    .desktop-view-table {
+        display: none;
+    }
+    
+    .player-mobile-view-table {
+        display: block;
+    }
+    
+    .coach-mobile-view-table {
+        display: block;
+    }
+    
+    .desktop-view {
+        display: none;
+    }
+    
+    .mobile-view {
+        display: block;
+    }
+    
+    .mobile-view-table td {
+        border: 1px solid rgb(224, 224, 224);
+        border-right: none;
+        padding-left: 25%;
+    }
+
+    td {
+        width: 100%;
+    }
+
+    .last th {
+        border: none;
+        padding: 0 10px;
+    }
+
+    .dashboard-table-row {
+        display: none;
+    }
+
+    th a {
+        width: 100%;
+    }
+
+    .row-mobile-header a {
+        margin: 15px 0;
+        padding: 10px;    
+    }
+
+    tr.last {
+        border: none;
+    }
+
+    .panel {
+        border: none;
+    }
+
+    .blue {
+        color: #ffffff;
+        background-color: #418aca;
+        border-color: #418aca;
+    }
+
+    .mobile-items .tab-selected {
+        background-color: #E73D30;
+        color: #ffffff !important;
+    }
+
+    .card-header a {
+        color: #EA3E29;
+    }
+
+    /* End Table */
 }
+
 
 
 /**** End Phone Styling ****/
