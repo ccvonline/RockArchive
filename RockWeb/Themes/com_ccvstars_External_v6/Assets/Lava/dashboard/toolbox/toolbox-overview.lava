@@ -2,10 +2,13 @@
     {% include '~~/Assets/Lava/dashboard/toolbox/toolbox-overview.lava' %}
 {% endcomment %}
 
-{% comment %} Get the teams Coach and assign isCoach to true {% endcomment %}
 
+{% comment %} Get the target person {% endcomment %}
+{% assign personChild = PageParameter.Player | PersonByAliasGuid %}
+
+{% comment %} Get the teams Coach and assign isCoach to true {% endcomment %}
 {% assign isCoach = false %}
-{% assign isAssistantCoach = false %}
+{% assign isAssistantCoachOrTeamManager = false %}
 
 {% groupmember where:'GroupId == {{PageParameter.GroupId}}' %}
     {% for groupMemberItem in groupmemberItems %}
@@ -14,10 +17,10 @@
             {% if coach.Person.Id == CurrentPerson.Id %}
                  {% assign isCoach = true %}
             {% endif %}
-        {% else if groupMemberItem.GroupRole.Name == 'Assistant Coach' %}
-            {% assign assistantCoach = groupMemberItem %}
-            {% if assistantCoach.Person.Id == CurrentPerson.Id %}
-                 {% assign isAssistantCoach = true %}
+        {% else if groupMemberItem.GroupRole.Name == 'Assistant Coach' or groupMemberItem.GroupRole.Name == 'Team Manager' %}
+            {% assign assistantCoachOrTeamManager = groupMemberItem %}
+            {% if assistantCoachOrTeamManager.Person.Id == CurrentPerson.Id %}
+                 {% assign isAssistantCoachOrTeamManager = true %}
             {% endif %}   
         {% endif %}
     {% endfor %}
@@ -32,7 +35,7 @@
 
 <div class="person-summary">
     <div class="person-details">
-        <h2>Player Name?</h2>
+        <h2>{{ personChild.FullName }}</h2>
         <div class="person-details-row">
             <div class="person-details-item">
                 <h6>Practice Day(s)</h6>
@@ -85,15 +88,15 @@
         <div> No Groups Available To List</div>
     {% else %}
         <!-- if currentperson is the coach, show dropdown with other teams that currentperson coaches (if any) -->
-        {% if isCoach == "true" or isAssistantCoach == "true" %}
+        {% if isCoach == "true" or isAssistantCoachOrTeamManager == "true" %}
             <div class="teams-dropdown">
-                <button id="btnTeamsSelect" class="dropdown-toggle" type="button" data-toggle="dropdown" style="border: 0px;">{{ group.Name }}<b class="fa fa-caret-down"></b></button>
+                <button id="btnTeamsSelect" class="dropdown-toggle select-dropdown-button" type="button" data-toggle="dropdown">{{ group.Name }}<b class="fa fa-caret-down"></b></button>
                 <ul class="dropdown-menu">
-                    {% for group in currentPersonGroups %}
+                    {% for currentPersonGroup in currentPersonGroups %}
                         <!-- Get campus that sport is hosted at -->
-                        {% assign campus = Campuses | Where: 'Id', group.Group.CampusId %}
+                        {% assign campus = Campuses | Where: 'Id', currentPersonGroup.Group.CampusId %}
 
-                        <li><a href="{{ LinkedPages.DetailPage }}?GroupId={{group.Group.Id}}&campus={{campus}}&Sport={{ group.Group | Attribute:'Sport' | Downcase | Replace: ' ', '-' }}">{{ group.Group.Name }}</a></li>
+                        <li><a href="/team-toolbox?GroupId=?GroupId={{currentPersonGroup.Group.Id}}&Campus={{campus}}&Sport={{ currentPersonGroup.Group | Attribute:'Sport' | Downcase | Replace: ' ', '-' }}">{{ currentPersonGroup.Group.Name }}</a></li>
                     {% endfor %}
                 </ul>
             </div>
@@ -104,17 +107,20 @@
 
             <!-- if currentperson is a parent, show dropdown of currentperson's other childrens teams (if any). Or if currentpersons child plays on two teams, show all teams in drop down. -->
             <div class="teams-dropdown">
-                <button id="btnTeamsSelect" class="dropdown-toggle" type="button" data-toggle="dropdown" style="border: 0px;">Select Child<b class="fa fa-caret-down"></b></button>
+                <button id="btnTeamsSelect" class="dropdown-toggle select-dropdown-button" type="button" data-toggle="dropdown">{{ personChild.FullName }}<b class="fa fa-caret-down"></b></button>
                 <!-- Loop through children in family -->
                 {% for child in children %}
                     <!-- Get child groups of youth sports type -->
                     {% assign childGroups = child | Groups:'73','Active' %}
                     <!-- drop down list with teams that child is in -->
                     <ul class="dropdown-menu">
-                        {% for group in childGroups %}
+                        {% for childGroup in childGroups %}
+                            <!-- Get campus that sport is hosted at -->
+                            {% assign campus = Campuses | Where: 'Id', childGroup.Group.CampusId %}
+
                             <!-- Check to see if group is active and currentperson is not the leader (coach) of group -->
-                            {% if group.Group.IsPublic and group.IsLeader != true %}
-                                <li><a href="{{ LinkedPages.DetailPage }}?GroupId={{group.Group.Id}}&campus={{campus}}&Sport={{ group.Group | Attribute:'Sport' | Downcase | Replace: ' ', '-' }}">{{ child.FullName }}</a></li>
+                            {% if childGroup.Group.IsPublic and childGroup.IsLeader != true %}
+                                <li><a href="/team-toolbox?GroupId={{childGroup.Group.Id}}&Campus={{campus}}&Sport={{ childGroup.Group | Attribute:'Sport' | Downcase | Replace: ' ', '-' }}&paguid={{ child.PrimaryAlias.Guid }}">{{ child.FullName }}</a></li>
                             {% endif %}
                         {% endfor %}
                     </ul>
