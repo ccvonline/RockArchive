@@ -39,46 +39,14 @@ strong {
     font-weight: 700;
 }
 
-.right {
-    display: flex;
-    flex-direction: column;
-}
-
-.right h3 {
-    padding-bottom: 15px;
-}
-
-.right a {
-    color: #1ea0d4;
-    text-decoration: none;
-    font-family: heebo;
-    font-size: 26px;
-    line-height: 29px;
-    font-weight: 400;
-    padding-bottom: 30px; 
-}
-
-.rules-panel object {
-    min-height: 600px;
-}
-
-.rules-panel h3 {
-    text-align: center;
-    padding: 20px 0;
-}
-
-#pdfRulesDownload {
-    display: none;
-}
-
-.header {
-    height: 80px;
-}
-
 .tab {
     font-size: 24px;
     line-height: 26px;
     padding: 10px 20px;
+}
+
+.tabbed-panel-view-cards .header {
+    height: 70px;
 }
 
 /* End Overrides */
@@ -124,7 +92,7 @@ strong {
     line-height: 18px;
     font-weight: 900;
     color: #000000;
-    text-transform: capitalize;
+    text-transform: none;
     text-align: left;
 }
 
@@ -155,11 +123,30 @@ strong {
     border: 1px solid #e0e0e0;
 }
 
+#btnTeamsSelect {
+    padding: 22px 5px;
+    border: none;
+    border-right: 1px solid #dddddd;
+    border-radius: 0px;
+    font-size: 18px;
+    line-height: 20px;
+    font-family: akrobat;
+    font-weight: 900;
+    color: #EA3E29;
+    text-transform: capitalize;
+}
+
+.no-groups-text {
+    text-align:center;
+    color:#E73D30;
+    font-weight:700;
+}
+
 /* End Person Info */
 
 /* Panels */
 #players-panel {
-    padding: 0 30px;
+    padding: 0 15px;
 }
 
 .player-image img {
@@ -184,6 +171,10 @@ strong {
     padding-bottom: 10px;
 }
 
+.player-info {
+    font-size: 13px;
+}
+
 .player-info h6 {
     font-weight: 700;
     color: #E73D30;
@@ -198,13 +189,140 @@ strong {
     color: #7c7c7c;
 }
 
+/* sport details styling */
+.rules-panel h3 {
+    color: #E73D30;
+}
+
+.practice-panel p, .game-panel p, .rules-panel p {
+    color: #6e6e6e;
+}
+
+.left-and-right-container {
+    align-items: unset;
+    padding-top: unset;
+}
+
+.left img {
+    width: 450px;
+    height: auto;
+}
+
+.right {
+    display: flex;
+    flex-direction: column;
+    padding-top: 20px;
+}
+
+.right h3 {
+    padding-bottom: 15px;
+}
+
+.btn-secondary {
+    padding: 15px 0;
+    margin: 20px 5px;
+    border-radius: 6px;
+    font-size: 20px;
+    line-height: 22px;
+    font-weight: 800;
+    width: 250px;
+}
+
+.rules-panel object {
+    min-height: 600px;
+}
+
+.rules-panel h3 {
+    text-align: center;
+    padding: 20px 0;
+}
+
+#pdfRulesDownload {
+    display: none;
+}
+/* end sport details */
+
+/* Start Reources Styling */
+.resources-row {
+    margin: 20px;
+}
+
+.resources-row h4 {
+    color: #E73D30;
+}
+
+.resources-row .btn {
+    padding: 10px 20px;
+}
+
+.resources-row .btn-primary {
+    font-size: 22px;
+    line-height: 24px;
+}
+
+.resources-row .btn-row {
+    padding-top: 1%;
+}
+
+.resources-row p {
+    color: #333333;
+    font-size: 17px;
+    line-height: 24px;
+    width: 50%;
+}
+
+.resources-missing {
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.resources-missing p {
+    font-size: 24px;
+    line-height: 26px;
+    color: #E73D30;
+}
+/* End Reources Styling */
+
 /* End Panels */
 
+/**** Responsive Styling ****/
+@media screen and (max-width: 1439.98px) {
+    .responsive-hide {
+        display: none;
+    }
 
+    .left img {
+        width: 400px;
+    }
+}
 
 /**** Tablet Styling  ****/
 @media screen and (max-width: 1023.98px) {
+    .tab {
+        font-size: 22px;
+        line-height: 24px;
+    }
+    .left-and-right-container {
+        flex-direction: column-reverse;
+    }
 
+    .left-and-right-container .left {
+        margin-left: 0;
+    }
+
+    .left img {
+        width: 100%;
+    }
+
+    .left-and-right-container .right {
+        align-items: flex-start;
+    }
+    
+    .btn-secondary {
+        width: 100%;
+    }
 }
 
 /**** Tablet Styling  ****/
@@ -225,6 +343,18 @@ strong {
         margin: 0;
     }
 
+    .right h3 {
+        width: 100%;
+    }
+
+    #pdfRules {
+        display: none;
+    }
+
+    #pdfRulesDownload {
+        display: flex;
+    }
+
     /* End Zones & Sections */
 
     /* Overrides */
@@ -243,6 +373,10 @@ strong {
         line-height: 34px;
     }
 
+    #btnTeamsSelect {
+        padding: 18px 5px;
+    }
+
     /* End Overrides */
 
     /* Panels */
@@ -256,8 +390,23 @@ strong {
         padding-bottom: 10px;
     }
 
+    /* Start Reources Styling */
+    .resources-missing {
+        height: 100px;
+    }
+
+    .resources-missing p {
+        font-size: 14px;
+        line-height: 16px;
+    }
+
+    .resources-row p {
+        width: 100%;
+    }
+
+    /* End Reources Styling */
+
     /* End Panels */
 }
 
 /**** End Phone Styling ****/
-
