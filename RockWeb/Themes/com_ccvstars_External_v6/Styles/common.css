@@ -14,6 +14,19 @@
    =================================================================== */
 
 /*** Defaults ***/
+body {
+    background-color: #000;
+}
+
+#masthead {
+    position: fixed;
+    z-index: 999;
+}
+
+.main-feature {
+    padding-top: 120px;
+}
+
 #section-feature-bg {
     height: 325px;
 }
@@ -43,38 +56,39 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 h1 {
-    font-size: 88px;
-    line-height: 78px;
-	letter-spacing: -3px;
+    font-size: 71px;
+    line-height: 63px;
 }
   
 h2 {
-	font-size: 56px;
-	line-height: 58px;
+	font-size: 45px;
+	line-height: 47px;
 }
 
 h3 {
-    font-size: 50px;
-    line-height: 52px;
-}
-
-h4 {
     font-size: 40px;
     line-height: 42px;
 }
 
+h4 {
+    font-size: 32px;
+    line-height: 34px;
+}
+
 h5 {
-    font-size: 30px;
-    line-height: 32px;
+    font-size: 24px;
+    line-height: 26px;
 }
 
 h6 {
-    font-size: 22px;
-    line-height: 24px;
+    font-size: 18px;
+    line-height: 20px;
 }
 
 hr {
     border-top: 2px solid #ccc;
+    padding-bottom: 20px;
+    margin: 0;
 }
 
 .button, html input[type="button"], input[type="reset"], input[type="submit"] {
@@ -110,12 +124,20 @@ hr {
     color: #FFFFFF;
     font-family: akrobat;
     font-weight: 800;
-    font-size: 20px;
-    line-height: 22px;
+    font-size: 16px;
+    line-height: 18px;
     text-transform: uppercase;
     padding: 0 55px;
     margin-bottom: 3px;
     border-radius: 6px;
+}
+
+.btn-live {
+    display: inline;
+    color: #FFFFFF;
+    margin: 0px 10px;
+    background-color: #741315;
+    border: none;
 }
 
 .btn-primary:hover, .btn-primary:active, .btn-primary:focus, .btn-register:hover, .btn-register:active, .btn-register:focus {
@@ -147,7 +169,7 @@ a:focus {
 .masthead {
     font-family: akrobat;
 	font-weight: 700;
-    font-size: 15px;
+    font-size: 12px;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     background-color: black;
@@ -155,15 +177,21 @@ a:focus {
 }
 
 .announcement-bar {
-    padding-top: 5px;
-    background-color: #E73D30;
-    color: #FFFFFF;
-    font-weight: normal;
-    font-family: akrobat;
+    min-height: 55px;
+    background-color: #f5d127;
+    color: #000;
+    font-weight: 400;
+    font-family: Heebo;
     text-align: center;
-    padding: 10px 0px;
-    margin-bottom: 5px;
-    font-size: 20px;
+    font-size: 19px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* spacer for when announcement bar is active */
+.announcement-bar-showing {
+    padding-top: 175px;
 }
 
 .masthead-upper {
@@ -213,10 +241,10 @@ a:focus {
 .navigation-primary-item-a, .navigation-primary-item-button, .nav > li > a, .masthead-navitem  {
     color: #FFFFFF;
     font-family: akrobat;
-    font-size: 18px;
+    font-size: 15px;
     font-weight: 800;
     -webkit-font-smoothing: antialiased;
-    line-height: 20px;
+    line-height: 17px;
     text-decoration: none;
     text-transform: uppercase;
 }
@@ -234,6 +262,10 @@ a:focus {
 }
 
 .navigation-primary-item-button a {
+    color: #FFFFFF;
+}
+
+.ccv-link {
     color: #E73D30;
 }
 
@@ -259,7 +291,7 @@ a:focus {
 
 .navigation-primary-dropdown-content a {
     display: block;
-    font-size: 13px;
+    font-size: 11px;
     text-decoration: none;
 }
 
@@ -327,7 +359,7 @@ a:focus {
 }
 
 .loginstatus .dropdown-menu {
-    font-size: 14px;
+    font-size: 11px;
     background: rgba(0,0,0,0.8);
     margin-top: 52px;
 }
@@ -338,7 +370,7 @@ a:focus {
     margin: 0;
     border: unset;
     font-family: akrobat;
-    font-size: 13px;
+    font-size: 11px;
     font-weight: 800;
 }
 
@@ -442,7 +474,7 @@ a:focus {
     color: #E73D30;
     text-transform: uppercase;
     background-color: transparent;
-    font-size: 18px;
+    font-size: 15px;
     line-height: 35px;
     font-weight: normal;
     list-style: none;
@@ -477,8 +509,8 @@ a:focus {
 }
 
 .title p {
-    font-size: 29px;
-    line-height: 34px;
+    font-size: 23px;
+    line-height: 27px;
     width: 850px;
     margin: 0 auto;
 }
@@ -522,16 +554,16 @@ a:focus {
 .graphicSection p {
     font-family: akrobat;
     font-weight: 400;
-    font-size: 30px;
-    line-height: 34px;
+    font-size: 24px;
+    line-height: 27px;
     color: #FFFFFF;
     text-transform: uppercase;
 }
 
 .right p, .left p {
     color: #333333;
-    font-size: 17px;
-    line-height: 24px;
+    font-size: 14px;
+    line-height: 19px;
 }
 
 .infoSection h1, .infoSection h2, .infoSection h3, .infoSection h4, .infoSection h5 {
@@ -606,8 +638,8 @@ a:focus {
 }
 
 .tabbed-panel-view-cards .header h4 {
-    font-size: 32px;
-    line-height: 34px;
+    font-size: 26px;
+    line-height: 28px;
     padding-bottom: 3%;
     color: #E73D30;
     font-weight: 800;
@@ -634,8 +666,8 @@ a:focus {
     background-color: #E3E3E3;
     color: #E73D30;
     font-family: Akrobat;
-    font-size: 30px;
-    line-height: 26px;
+    font-size: 18px;
+    line-height: 20px;
     font-weight: 700;
     border-top-left-radius: 4px;
     border-top-right-radius: 4px;
@@ -718,15 +750,11 @@ a:focus {
 
 .select-dropdown .dropdown-menu a {
     font-family: akrobat;
-    font-size: 16px;
-    line-height: 18px;
+    font-size: 13px;
+    line-height: 15px;
 }
 
 /* Summer Camps Section */
-.summer-camps-mobile {
-    display: none;
-}
-
 .summer-camps-row {
     display: flex;
     justify-content: center;
@@ -749,8 +777,8 @@ a:focus {
     text-align: center;
     border: none;
     font-weight: 800;
-    font-size: 22px;
-    line-height: 16px;
+    font-size: 18px;
+    line-height: 13px;
     padding: 8px 20px;
     margin-left: 50px;
 }
@@ -797,13 +825,16 @@ a:focus {
 }
 
 .campus-info-window h6 {
-    font-size: 18px;
-    line-height: 20px;
+    font-size: 15px;
+    line-height: 16px;
     padding: 0 0 10px 0;
 }
 
 .campus-info-window p {
     margin: 0;
+    font-size: 10px;
+    font-weight: 400;
+
 }
 
 .campus-info-window a {
@@ -819,6 +850,19 @@ a:focus {
 .sports-offered img {
     width: 33px;
     height: 33px;
+    margin-right: 10px;
+}
+
+.campus-contact {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 10px;
+}
+
+.campus-contact img {
+    width: 30px;
+    height: 30px;
     margin-right: 10px;
 }
 
@@ -854,7 +898,7 @@ a:focus {
 
 .event-cards-header .nav-button {
     color: #E73D30;
-    font-size: 24px; 
+    font-size: 19px; 
     transition: all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms; 
     background-color: unset;
     border-width: unset;
@@ -979,16 +1023,16 @@ a:focus {
 }
 
 .footer-links-section h5 {
-    font-size: 24px;
-    line-height: 10px;
+    font-size: 19px;
+    line-height: 8px;
     letter-spacing: -1px;
     font-weight: 800;
     margin-bottom: 20px;
 }
 
 .footer-links-section a {
-    font-size: 19px;
-    line-height: 25px;
+    font-size: 15px;
+    line-height: 20px;
     letter-spacing: -.5px;
     font-weight: 600;
     color: #b2b2b2;
@@ -1025,8 +1069,8 @@ a:focus {
 .footer-copyright {
     font-family: Roboto Condensed; 
     color: #b2b2b2;
-    font-size: 13px;
-	line-height: 21.5px;
+    font-size: 10px;
+	line-height: 17px;
     font-weight: 300;
     text-align: center;
 }
@@ -1150,24 +1194,17 @@ a:focus {
 
 /**** Responsive Styling ****/
 @media screen and (max-width: 1439.98px) {
-    /* Reducing values by 30% rounded has a decent look for these device sizes  */
     #zone-feature, #zone-sectiona, #zone-sectionb, #zone-sectionc, #zone-sectiond, #zone-sectione {
         max-width: 90%;
     }
 
-    /* 
-        Original font values
-        h1: 88px lh: 78
-        h2: 56px lh: 58
-        h3: 50px lh: 52
-        h4: 40px lh: 42
-        h5: 30px lh: 32
-        h6: 22px lh: 24 
-    */
+    .announcement-bar {
+        font-size: 18px;
+    }
+
     h1 {
         font-size: 62px;
         line-height: 55px;
-        letter-spacing: -3px;
     }
       
     h2 {
@@ -1250,15 +1287,6 @@ a:focus {
         line-height: 17px;
     }
 
-    .summer-camps-row .rectangle button {
-        margin: 27px 0;
-        margin-left: 50px;
-    }
-
-    .summer-camps-row .select-dropdown .dropdown-menu {
-        margin-top: -26px;
-    }
-
     .graphicSection {
         width: 595px;
         height: 350px;
@@ -1306,6 +1334,10 @@ a:focus {
     /* Zones & Sections */
     #section-feature-bg {
         height: 208px;
+    }
+
+    .announcement-bar {
+        font-size: 15px;
     }
 
     /* Navigation */
@@ -1388,28 +1420,6 @@ a:focus {
         justify-content: space-evenly;
     }
 
-    .summer-camps-desktop {
-        display: none;
-    }
-    .summer-camps-mobile {
-        display: inline-block;
-    }
-
-    .summer-camps-mobile h3 {
-        text-align: center;
-    }
-
-    .summer-camps-row .rectangle button {
-        margin: 18px 20px;
-    }
-
-    .summer-camps-row .select-dropdown .dropdown-menu {
-        margin: 0;
-        width: 28%;
-        margin-top: -16px;
-        margin-left: 21px;
-    }
-
     .graphicSection h5 {
         font-weight: 600;
     }
@@ -1468,11 +1478,19 @@ a:focus {
 
 /**** Phone Styling ****/
 @media screen and (max-width: 767.98px) {
+    /* defaults */
+    .main-feature {
+        padding-top: 55px;
+    }
+
+    .announcement-bar-showing {
+        padding-top: 110px;
+    }
+
     /* Phone styling based on mobile design mookups */
     h1 {
         font-size: 28px;
         line-height: 30px;
-        letter-spacing: 0px;
     }
 
     h2 {
@@ -1654,18 +1672,18 @@ a:focus {
 
     .summer-camps-row .rectangle {
         flex-direction: column;
-        padding-bottom: 20px;
+        padding: 0 15px 15px 15px;
         margin-bottom: 20px;
     }
 
     .summer-camps-row .rectangle button {
-        margin: 0 20px;
+        margin: 0;
     }
 
     .summer-camps-row .select-dropdown .dropdown-menu {
         width: 75%;
         margin-top: 44px;
-        margin-left: 30px;
+        margin-left: 17px;
     }
 
     .graphicSection {

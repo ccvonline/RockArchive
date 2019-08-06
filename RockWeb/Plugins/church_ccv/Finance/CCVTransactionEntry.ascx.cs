@@ -89,7 +89,6 @@ TransactionAcountDetails: [
     [BooleanField( "Enable Comment Entry", "Allows the guest to enter the the value that's put into the comment field (will be appended to the 'Payment Comment' setting)", false, "", 29 )]
     [TextField( "Comment Entry Label", "The label to use on the comment edit field (e.g. Trip Name to give to a specific trip).", false, "Comment", "", 30 )]
     [TextField( "Fund / Account Dropdown Placeholder", "The placeholder text to use in the account/fund dropdown (e.g. --Select a Fund-- or --Select a Trip--).", false, "--Select A Fund--", "", 31, "FundDropdownPlaceholder" )]
-
     #endregion
 
     public partial class CCVTransactionEntry : Rock.Web.UI.RockBlock
@@ -101,7 +100,10 @@ TransactionAcountDetails: [
         private GatewayComponent _ccGatewayComponent = null;
         private FinancialGateway _achGateway;
         private GatewayComponent _achGatewayComponent = null;
-        
+
+        //Set the required minimum donation.
+        const decimal minDonation = 10;
+
         #endregion
 
         #region Properties
@@ -208,6 +210,9 @@ TransactionAcountDetails: [
             {
                 // create new transaction guid
                 hfTransactionGuid.Value = Guid.NewGuid().ToString();
+
+                // Set the min donation amount.
+                hfMinDonation.Value = minDonation.ToString();
                 
                 // Bind dropdown lists
                 BindFundAccounts();
@@ -265,9 +270,10 @@ TransactionAcountDetails: [
         /// <param name="e"></param>
         protected void btnConfirmNext_Click( object sender, EventArgs e )
         {
+
             string errorMessage = string.Empty;
 
-            if ( ProcessTransaction( out errorMessage ) )
+            if ( ValidateDecepticon( out errorMessage ) && ProcessTransaction( out errorMessage ) )
             {
                 // Success - hide Transaction panel and show payment success panel
                 nbMessage.Visible = false;
@@ -719,7 +725,9 @@ TransactionAcountDetails: [
         /// <returns></returns>
         private bool ProcessTransaction( out string errorMessage )
         {
+
             var rockContext = new RockContext();
+
             if ( string.IsNullOrWhiteSpace( TransactionCode ) )
             {
                 // get gateway info
@@ -771,6 +779,12 @@ TransactionAcountDetails: [
                 if ( paymentInfo == null )
                 {
                     errorMessage = "There was a problem creating the payment transaction";
+                    return false;
+                }
+
+                if(paymentInfo.Amount < minDonation )
+                {
+                    errorMessage = "The donation amount must be at least $10.00.";
                     return false;
                 }
 
@@ -1421,8 +1435,42 @@ TransactionAcountDetails: [
         }
 
         #endregion
-        
+
         #region Methods used globally
+
+        /// <summary>
+        /// Checks the value of the Decepticon timer. 
+        /// </summary>
+        /// <param name="errorMessage">The error message.</param>
+        /// <returns></returns>
+        private bool ValidateDecepticon( out string errorMessage )
+        {
+
+            errorMessage = String.Empty;
+
+            int decepticon;
+            bool hasDecepticon = int.TryParse( hfDecepticon.Value.TrimStart(), out decepticon );
+
+            int decepticonMult;
+            bool hasDecepticonMult = int.TryParse( hfDecepticonMult.Value.TrimStart(), out decepticonMult );
+
+            if(!hasDecepticon || !hasDecepticonMult )
+            {
+                errorMessage = "We're sorry, but we cannot process your payment at this time.";
+                return false;
+            }
+
+            if ( decepticonMult > 0 && decepticon / decepticonMult > 3 )
+            {
+                return true;
+            }
+            else
+            {
+                errorMessage = "We're sorry, but we cannot process your payment at this time.";
+                return false;
+            }
+
+        }
 
         /// <summary>
         /// Gets the person.

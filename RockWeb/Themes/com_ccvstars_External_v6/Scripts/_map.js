@@ -57,7 +57,7 @@
 
     // Marker Styles
     CCV.markerFile = (window.devicePixelRatio > 1.5) ? '/Themes/com_ccvstars_External_v6/Assets/Images/icon/star-red.svg' : '/Themes/com_ccvstars_External_v6/Assets/Images/icon/star-red.svg';
-    CCV.marker = new google.maps.MarkerImage(CCV.markerFile, null, null, null, new google.maps.Size(200,78));
+    CCV.marker = new google.maps.MarkerImage(CCV.markerFile, null, null, null, new google.maps.Size(200,64));
 
 
 
@@ -209,30 +209,47 @@
         var campusSports = campus.sports
         var campusRoute = campus.name.replace(' ','-').toLowerCase()
 
+        // create clickable map link
+        var campusMapLink = ""
+        var mapNewWindow = `target="_blank"`
+        if ((navigator.platform.indexOf("iPhone") != -1) || (navigator.platform.indexOf("iPad") != -1) || (navigator.platform.indexOf("iPod") != -1)) {
+            // ios - chrome ios doesnt like target blank so dont add it
+            campusMapLink = "http://maps.apple.com/?q=" + campus.geo.lat + "," + campus.geo.lng
+            mapNewWindow = ""
+        } else {
+            // everything else
+            campusMapLink = "https://maps.google.com/maps?daddr=" + campus.geo.lat + "," + campus.geo.lng + "&amp;ll="
+        }
+
         result  = '<div class="campus-info-window">'
-            result += '<h6>SPORTS AT THIS LOCATION</h6>'
+            result += '<h6>' + campus.name + '</h6>'
             result += '<div class="sports-offered">'
                 if ( campusSports.length > 0 ) {
                     if (campusSports.includes("baseball")) {
-                        result += '<a href="/baseball-v2/' + campusRoute + '"><img src="/Themes/com_ccvstars_External_v6/Assets/Images/icon/baseball-red.png"></a>'
+                        result += '<a href="/baseball/' + campusRoute + '"><img src="/Themes/com_ccvstars_External_v6/Assets/Images/icon/baseball-red.png"></a>'
                     }
                     if (campusSports.includes("basketball")) {
-                        result += '<a href="/basketball-v2/' + campusRoute + '"><img src="/Themes/com_ccvstars_External_v6/Assets/Images/icon/basketball-red.png"></a>'
+                        result += '<a href="/basketball/' + campusRoute + '"><img src="/Themes/com_ccvstars_External_v6/Assets/Images/icon/basketball-red.png"></a>'
                     }
                     if(campusSports.includes("football")) {
-                        result += '<a href="/football-v2/' + campusRoute + '"><img src="/Themes/com_ccvstars_External_v6/Assets/Images/icon/football-red.png">'
+                        result += '<a href="/football/' + campusRoute + '"><img src="/Themes/com_ccvstars_External_v6/Assets/Images/icon/football-red.png"></a>'
                     }
                     if (campusSports.includes("soccer")) {
-                        result += '<a href="/soccer-v2/' + campusRoute + '"><img src="/Themes/com_ccvstars_External_v6/Assets/Images/icon/soccer-red.png">'
+                        result += '<a href="/soccer/' + campusRoute + '"><img src="/Themes/com_ccvstars_External_v6/Assets/Images/icon/soccer-red.png"></a>'
+                    }
+                    if (campusSports.includes("exceptional-stars")) {
+                        result += '<a href="/exceptional-stars/' + campusRoute + '"><img src="/Themes/com_ccvstars_External_v6/Assets/Images/icon/exceptional-stars-red.png"></a>'
                     }
                 } else {
                     result += '<p>No sports currently offered</p>'
                 }
-            result += '  </div>'
-            result += '  <p>CCV CAMPUS</p>'
-            
-
-            result += '  <a href="https://ccv.church/' + campusRoute + '">ccv.church/'+ campusRoute +'</a>'
+            result += '</div>'
+            result += '<div class="campus-contact">'
+            result += '<a href="mailto:' + campus.name.replace(' ','').toLowerCase() +  '@ccvstars.com"><img src="/Themes/com_ccvstars_External_v6/Assets/Images/icon/email-red.png"></a>'
+            result += `<a href="` + campusMapLink + `" ` + mapNewWindow + `><p>` + campus.street + '<br />'
+            result += campus.city + ', ' + campus.state + ' ' + campus.zip + '</p></a>'
+            result += '</div>'
+            result += '<a href="https://ccv.church/' + campusRoute + '">ccv.church/'+ campusRoute +'</a>'
         result += '</div>'
         return result
     }

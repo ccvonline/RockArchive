@@ -2,8 +2,49 @@
 ///  Giving Page
 /// --------------------------------------------------
 
+const decepticon = function () {
+
+    let decepticonMult;
+    let decepticonVar;
+
+    let that = {};
+
+    that.attack = () => {
+
+        $('#hfDecepticon').val(decepticonMult * decepticonVar);
+        $('#hfDecepticonMult').val(decepticonMult);
+        
+    }
+
+    that.mobilize = () => {
+        decepticonMult = Math.floor(Math.random() * Math.floor(10));
+        decepticonVar = 0;
+        setInterval(function () {
+            decepticonVar++;
+        }, 1000);
+    }
+
+    return that;
+}
+
+let megatron = new decepticon;
+
+const handleSubmit = function (e) {
+
+    // Disable processing submit button after its clicked to prevent duplicate submits
+    $('#btnConfirmNext').attr('disabled', 'disabled');
+
+    //Attack the Autobots! 
+    megatron.attack();
+    return true;
+}
+
 // Components that persist through postbacks
 function pageLoad() {
+
+    //Mobilize the Decepticons
+    megatron.mobilize();
+
     //
     // Transaction Panel
     //
@@ -19,11 +60,6 @@ function pageLoad() {
         $('input[type="radio"]:checked').parents('label').addClass('btn-primary');
         $('input[type="radio"]:not(:checked)').parents('label').removeClass('btn-primary');
     } 
-
-    // Disable processing submit button after its clicked to prevent duplicate submits
-    $('#btnConfirmNext').on('click', function () {
-        $('#btnConfirmNext').attr('disabled', 'disabled');
-    });
 
     // Disable progress buttons if they are not in a complete state
     // Not sure why, but disabling at the ASP control level breaks javascript...which is why its here
@@ -382,6 +418,9 @@ btnNext_OnClick = function (targetPanel) {
             togglePanel('#pnlPayment', false);
             togglePanel('#pnlConfirm', true);
 
+            //Attach anti Autobot validation.
+            megatron.attack();
+
             // update progress bar
             toggleProgressIndicator('#btnProgressConfirm', true, false);
             toggleProgressIndicator('#btnProgressPayment', true, true);
@@ -606,7 +645,8 @@ validateAmountFormFields = function () {
     // get amount and selected fund value
     var amount = $('#nbAmount').val();
     var fund = $('#ddlAccounts').find(':selected').val();
-    
+    var minDonation = parseFloat($('#hfMinDonation').val());
+
     // check if schedule input is toggled
     var isScheduledTransaction = false;
     var scheduledTransactionReady = false;
@@ -621,13 +661,22 @@ validateAmountFormFields = function () {
         scheduledTransactionReady = true;
     }
 
-    if ((amount && amount !== '$') && (fund && fund !== '-1') && scheduledTransactionReady === true && $('.has-error').length === 0) {
+    if ((amount && amount !== '$') && (fund && fund !== '-1') && (parseFloat(amount.replace('$', '')) >= minDonation) && scheduledTransactionReady === true && $('.has-error').length === 0) {
         $('#nbHTMLMessage').addClass('hidden');
         return true;
     } else {
+
+        let errorMessage = "Please correct errors and try again.";
+
         // highlight fields not ready
-        if ((!amount || amount === '$')) {
+        if (!amount || amount === '$') {
             $('#nbAmount').parents('div.amount-wrapper').addClass('has-error');
+            errorMessage += "<br />You must enter a valid amount greater than $10.00";
+        }
+
+        if (parseFloat(amount.replace('$', '')) < minDonation) {
+            $('#nbAmount').parents('div.amount-wrapper').addClass('has-error');
+            errorMessage += "<br />You must enter a valid amount greater than $10.00";
         }
 
         if ((!fund || fund === '-1')) {
@@ -644,7 +693,7 @@ validateAmountFormFields = function () {
             }
         }
 
-        displayMessage('Please correct errors and try again.', 'danger');
+        displayMessage(errorMessage, 'danger');
         return false;
     }
 
