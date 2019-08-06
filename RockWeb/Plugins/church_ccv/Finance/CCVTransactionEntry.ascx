@@ -67,7 +67,8 @@
                         </div>                                               
                         <div class="amount-wrapper">
                             
-                            <asp:TextBox ID="nbAmount" runat="server" Placeholder="0.00" ClientIDMode="Static" CssClass="amount form-control" />
+                            <asp:TextBox ID="nbAmount" runat="server" Placeholder="10.00" ClientIDMode="Static" CssClass="amount form-control" />
+                            <asp:HiddenField ID="hfMinDonation" runat="server" ClientIDMode="Static" />
 
                         </div>
 
@@ -271,7 +272,7 @@
                             </div>
                             <div class="navigation-right">                    
 
-                                <asp:Button runat="server" ID="btnConfirmNext" OnClick="btnConfirmNext_Click" Text="Confirm Gift" CssClass="btn btn-primary" />
+                                <asp:Button runat="server" ID="btnConfirmNext" OnClick="btnConfirmNext_Click" OnClientClick="handleSubmit()" UseSubmitBehavior="false" ClientIDMode="Static" Text="Confirm Gift" CssClass="btn btn-primary" />
 
                             </div>
                         </div>
@@ -410,6 +411,10 @@
             </asp:Panel>
 
         </div>
+
+        <asp:HiddenField runat="server" ID ="hfDecepticon" ClientIDMode="Static" />
+        <asp:HiddenField runat="server" ID ="hfDecepticonMult" ClientIDMode="Static" />
+        
     </ContentTemplate>
 
 </asp:UpdatePanel>

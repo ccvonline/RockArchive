@@ -5,27 +5,28 @@
 <div class="footer">
     <div class="footer-right">
         <a href="/" class="stars-logo"><img src="~~/Assets/Images/logo/stars-logo-white.png"></a>
-        <a href="https://ccv.church" class="ccv-logo"><img src="~~/Assets/Images/logo/ccv-logo-black.png"></a>
+        <a href="https://ccv.church" class="ccv-logo" target="_blank"><img src="~~/Assets/Images/logo/ccv-logo-black.png"></a>
     </div>
     <div class="footer-center">
         <div class="footer-links-section">
             <h5>Youth Sports</h5>
-            <a href="/baseball-v2">Baseball</a>
-            <a href="/basketball-v2">Basketball</a>
-            <a href="/football-v2">Football</a>
-            <a href="/soccer-v2">Soccer</a>
-            <a href="/exceptional-stars-v2">Exceptional STARS</a>
+            <a href="/baseball">Baseball</a>
+            <a href="/basketball">Basketball</a>
+            <a href="/football">Football</a>
+            <a href="/soccer">Soccer</a>
+            <a href="/exceptional-stars">Exceptional STARS</a>
         </div>
         <div class="footer-links-section">
             <h5>Reach Out</h5>
-            <a href="/contact-us-v2">Contact Us</a>
-            <a href="/volunteer-v2">Volunteer</a>
-            <a href="/register-v2">Register</a>
+            <a href="/stars-contact-us">Contact Us</a>
+            <a href="/stars-volunteer">Volunteer</a>
+            <a href="/register">Register</a>
         </div>
         <div class="footer-links-section">
             <h5>Resources</h5>
             <a href="/field-status">Field Status</a>
-            <a href="privacy-policy">Privacy Policy</a>
+            <a href="/stars-privacy-policy">Privacy Policy</a>
+            <a href="/faq">Faq</a>
         </div>
     </div>    
     <div class="footer-left">

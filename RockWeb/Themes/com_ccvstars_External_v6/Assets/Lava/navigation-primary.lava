@@ -37,26 +37,50 @@
                 {% else %}
             {% endcase %}
 
-            <li class="navigation-primary-item {{ activeClass }}">
-                <button class="navigation-primary-item-button" onclick="return false;">{{ childPage.Title }}</button>
-                <div class="navigation-primary-dropdown-content-wrapper">
-                    <div class="navigation-primary-dropdown-content">
-                        {% assign childPageTitle = childPage.Title | Downcase %}
-                        {% unless childPageTitle == 'sports' %}
-                            <a class="navigation-primary-item-a dropdown-content-item" href="{{ childPage.Url }}">{{ childPage.Title }}</a>
-                        {% endunless %}    
-                        {% for grandchildPage in childPage.Pages  %}
-                            <a class="navigation-primary-item-a dropdown-content-item" href="{{ grandchildPage.Url }}">{{ grandchildPage.Title }}</a>
-                        {% endfor %}
+            {% comment %} insert locations anchor link after sports {% endcomment %}
+            {% if childPage.Id == '2368' %}
+                <li class="navigation-primary-item">
+                    <div class="navigation-primary-item-button" >
+                        <a href="/stars#locations">Locations</a>
                     </div>
-                </div>
-            </li>
+                </li>
+            {% endif %}
+
+            {% assign numberOfGrandChildPages = childPage.Pages | Size %}
+
+            {% if numberOfGrandChildPages > 1 %}
+                <li class="navigation-primary-item {{ activeClass }}">
+                    <button class="navigation-primary-item-button" onclick="return false;">{{ childPage.Title }}</button>
+                    <div class="navigation-primary-dropdown-content-wrapper">
+                        <div class="navigation-primary-dropdown-content">
+                            {% assign childPageTitle = childPage.Title | Downcase %}
+                            {% unless childPageTitle == 'sports' %}
+                                <a class="navigation-primary-item-a dropdown-content-item" href="{{ childPage.Url }}">{{ childPage.Title }}</a>
+                            {% endunless %}    
+                            {% for grandchildPage in childPage.Pages  %}
+                                <a class="navigation-primary-item-a dropdown-content-item" href="{{ grandchildPage.Url }}">{{ grandchildPage.Title }}</a>
+                            {% endfor %}
+                            {% if childPageTitle == 'about stars' %}
+                                <a class="navigation-primary-item-a dropdown-content-item" href="/field-status">Field Status</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </li>
+            {% else %}
+                <li class="navigation-primary-item {{ activeClass }}">
+                    <div class="navigation-primary-item-button" >
+                        <a href="{{ childPage.Url }}">{{ childPage.Title }}</a>
+                    </div>
+                </li>
+            {% endif %}
+
+            {% comment %} reset active class {% endcomment %}
             {% assign activeClass = '' %}
         {% endfor %}
 
         <li class="navigation-primary-item">
             <div class="navigation-primary-item-button" >
-                <a href="https://ccv.church">CCV Website</a>
+                <a href="https://ccv.church" target="_blank" class="ccv-link">ccv.church</a>
             </div>
         </li>
     </ul>
