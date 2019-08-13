@@ -14,7 +14,7 @@
             <a href="/basketball">Basketball</a>
             <a href="/football">Football</a>
             <a href="/soccer">Soccer</a>
-            <a href="/exceptional-stars">Exceptional STARS</a>
+            <a href="/exceptional-stars">Exceptional Stars</a>
         </div>
         <div class="footer-links-section">
             <h5>Reach Out</h5>
@@ -24,7 +24,7 @@
         </div>
         <div class="footer-links-section">
             <h5>Resources</h5>
-            <a href="/field-status">Field Status</a>
+            {% comment %} <a href="/field-status">Field Status</a> {% endcomment %}
             <a href="/stars-privacy-policy">Privacy Policy</a>
             <a href="/faq">Faq</a>
         </div>

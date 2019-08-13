@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data.Entity.Spatial;
 using System.Linq;
 using church.ccv.CCVRest.MobileApp.Model;
@@ -49,65 +50,65 @@ namespace church.ccv.CCVRest.MobileApp
 
         public static KidsContentModel BuildKidsContent( Person person )
         {
-            // first, we need to know what grade range we'll be getting content for
-            const string GradeRange_Infants = "Infants";
-            const string GradeRange_EK = "Early Kids";
-            const string GradeRange_LK = "Later Kids";
-            const string GradeRange_JH = "Junior High";
-            const string GradeRange_HS = "High School";
+            // define our constants (for gradeToFamilyMap, there's nothing in Rock
+            // that actually maps a Grade to Content. It's just done based on the room
+            //  a kid checks in to, so define that mapping here)
+            const string MAMyFamilyContentOverrideKey = "MobileAppKidContentOverride";
+            const string MAMyFamilyContentLevelKey = "MobileAppKidContentLevel";
 
-            // this is technically cheating, but Rock abstracts grade and doesn't natively
-            // know about the US standard. To simplify things, let's do the conversion here
-            int realGrade = 0; //(assume infant / pre-k)
-            if ( person.GradeOffset.HasValue )
+            Dictionary<int, string> gradeToFamilyMap = new Dictionary<int, string>();
+            gradeToFamilyMap.Add( 0, "Infants" );
+            gradeToFamilyMap.Add( 1, "Early Kids" );
+            gradeToFamilyMap.Add( 5, "Later Kids" );
+            gradeToFamilyMap.Add( 7, "Junior High" );
+            gradeToFamilyMap.Add( 9, "High School" );
+
+            // see if the person has an override that sets their 
+            // content level (Common among people with Special Needs)
+            person.LoadAttributes();
+            string targetContent = person.AttributeValues[MAMyFamilyContentOverrideKey]?.ToString();
+
+            // if blank, there's no override, so choose content based on their grade/age
+            if( string.IsNullOrWhiteSpace( targetContent ) == true )
             {
-                realGrade = 12 - person.GradeOffset.Value;
-            }
-            else
-            {
-                // before we completely assume 1st grade, see if we can use their age
-                if ( person.Age.HasValue )
+                // this is technically cheating, but Rock abstracts grade and doesn't natively
+                // know about the US standard. To simplify things, let's do the conversion here
+                int realGrade = 0; //(assume infant / pre-k)
+                if ( person.GradeOffset.HasValue )
                 {
-                    if ( person.Age >= 14 )
+                    realGrade = 12 - person.GradeOffset.Value;
+                }
+                else
+                {
+                    // no grade, so try using their age
+                    if ( person.Age.HasValue )
                     {
-                        realGrade = 9;
-                    }
-                    else if ( person.Age >= 10 )
-                    {
-                        realGrade = 6;
-                    }
-                    else if ( person.Age >= 6 )
-                    {
-                        realGrade = 1;
-                    }
-                    else
-                    {
-                        realGrade = 0;
+                        if ( person.Age >= 14 )
+                        {
+                            realGrade = 9;
+                        }
+                        else if ( person.Age >= 12 )
+                        {
+                            realGrade = 7;
+                        }
+                        else if ( person.Age >= 10 )
+                        {
+                            realGrade = 5;
+                        }
+                        else if ( person.Age >= 6 )
+                        {
+                            realGrade = 1;
+                        }
+                        else
+                        {
+                            realGrade = 0;
+                        }
                     }
                 }
-            }
 
-            // now see which grade level they're in
-            string targetGradeRange = string.Empty;
-            if ( realGrade >= 9 )
-            {
-                targetGradeRange = GradeRange_HS;
-            }
-            else if ( realGrade >= 7 )
-            {
-                targetGradeRange = GradeRange_JH;
-            }
-            else if ( realGrade >= 5 )
-            {
-                targetGradeRange = GradeRange_LK;
-            }
-            else if ( realGrade >= 1 )
-            {
-                targetGradeRange = GradeRange_EK;
-            }
-            else
-            {
-                targetGradeRange = GradeRange_Infants;
+                // now whether from their actual grade, or inferred by age, get
+                // the content
+                targetContent = gradeToFamilyMap[realGrade];
             }
 
             // now that we know the range, build the content channel queries
@@ -119,7 +120,7 @@ namespace church.ccv.CCVRest.MobileApp
             ContentChannel atCCV = contentChannelService.Get( ContentChannelId_AtCCV );
 
             // sort by date
-            var atCCVItems = atCCV.Items.OrderByDescending( i => i.StartDateTime );
+            var atCCVItems = atCCV.Items.OrderByDescending( i => i.CreatedDateTime );
 
             // now take the first one that matches our grade offset.
 
@@ -131,7 +132,7 @@ namespace church.ccv.CCVRest.MobileApp
             {
                 // this is the slow part. If it ever does become an issue, replace it with an AV table join.
                 item.LoadAttributes();
-                if ( item.AttributeValues["GradeLevel"].ToString() == targetGradeRange )
+                if ( item.AttributeValues[MAMyFamilyContentLevelKey].ToString() == targetContent )
                 {
                     atCCVItem = item;
                     break;
@@ -144,14 +145,14 @@ namespace church.ccv.CCVRest.MobileApp
             ContentChannel faithBuilding = contentChannelService.Get( ContentChannelId_FaithBuilding );
 
             // sort by date
-            var faithBuildingItems = faithBuilding.Items.OrderByDescending( i => i.StartDateTime );
+            var faithBuildingItems = faithBuilding.Items.OrderByDescending( i => i.CreatedDateTime );
 
             // as above, we'll iterate over the whole list in memory, knowing we'll actually only load attributes for about 4 items.
             ContentChannelItem faithBuildingItem = null;
             foreach ( var item in faithBuildingItems )
             {
                 item.LoadAttributes();
-                if ( item.AttributeValues["GradeLevel"].ToString() == targetGradeRange )
+                if ( item.AttributeValues[MAMyFamilyContentLevelKey].ToString() == targetContent )
                 {
                     faithBuildingItem = item;
                     break;
@@ -167,7 +168,7 @@ namespace church.ccv.CCVRest.MobileApp
             foreach ( var item in resourceChannel.Items )
             {
                 item.LoadAttributes();
-                if ( item.AttributeValues["GradeLevel"].ToString().Contains( targetGradeRange ) )
+                if ( item.AttributeValues[MAMyFamilyContentLevelKey].ToString().Contains( targetContent ) )
                 {
                     resourceList.Add( item );
                 }
@@ -200,12 +201,16 @@ namespace church.ccv.CCVRest.MobileApp
                 KidsContentModel contentModel = new KidsContentModel();
 
                 // At CCV
-                contentModel.AtCCV_Title = atCCVItem.Title;
-                contentModel.AtCCV_Date = atCCVItem.StartDateTime;
-                contentModel.AtCCV_Content = atCCVItem.Content;
-                contentModel.AtCCV_Date = atCCVItem.StartDateTime;
+                contentModel.AtCCV_Title = atCCVItem.AttributeValues["AtCCVTitle"].ToString();
+                contentModel.AtCCV_Content = atCCVItem.AttributeValues["AtCCVContent"].ToString();
                 contentModel.AtCCV_DiscussionTopic_One = atCCVItem.AttributeValues["DiscussionTopic1"].ToString();
                 contentModel.AtCCV_DiscussionTopic_Two = atCCVItem.AttributeValues["DiscussionTopic2"].ToString();
+
+                string dateTime = atCCVItem.AttributeValues["WeekendDate"].ToString();
+                if ( string.IsNullOrWhiteSpace( dateTime ) == false )
+                {
+                    contentModel.AtCCV_Date = DateTime.Parse( dateTime );
+                }
 
                 string seriesImageGuid = atCCVItem.AttributeValues["SeriesImage"].Value.ToString();
                 if ( string.IsNullOrWhiteSpace( seriesImageGuid ) == false )
@@ -218,8 +223,8 @@ namespace church.ccv.CCVRest.MobileApp
                 }
 
                 // Faith building
-                contentModel.FaithBuilding_Title = faithBuildingItem.Title;
-                contentModel.FaithBuilding_Content = faithBuildingItem.Content;
+                contentModel.FaithBuilding_Title = faithBuildingItem.AttributeValues["FBTitle"].ToString();
+                contentModel.FaithBuilding_Content = faithBuildingItem.AttributeValues["FBContent"].ToString();
 
                 // resources CAN be empty, so just take whatever's available
                 contentModel.Resources = new List<KidsResourceModel>();
@@ -228,7 +233,7 @@ namespace church.ccv.CCVRest.MobileApp
                 {
                     KidsResourceModel resModel = new KidsResourceModel
                     {
-                        Title = resourceItem.Title,
+                        Title = resourceItem.AttributeValues["ResourceTitle"].ToString(),
                         Subtitle = resourceItem.AttributeValues["Subtitle"].ToString(),
                         URL = resourceItem.AttributeValues["URL"].ToString()
                     };
@@ -315,6 +320,14 @@ namespace church.ccv.CCVRest.MobileApp
                         resourceModel.Author = resource.AttributeValues["Author"].Value.ToString();
                         resourceModel.URL = resource.AttributeValues["URL"].Value.ToString();
 
+                        // add a hint for the mobile app so it knows whether to show a book detail page or not.
+                        // if there's content, and an author, it's a book.
+                        if ( string.IsNullOrWhiteSpace( resourceModel.Content ) == false &&
+                            string.IsNullOrWhiteSpace( resourceModel.Author ) == false )
+                        {
+                            resourceModel.IsBook = true;
+                        }
+
                         // is there an image?
                         string resourceImageGuid = resource.AttributeValues["Image"].Value.ToString();
                         if ( string.IsNullOrWhiteSpace( resourceImageGuid ) == false )
@@ -329,6 +342,9 @@ namespace church.ccv.CCVRest.MobileApp
                         ltTopicModel.Resources.Add( resourceModel );
                     }
                 }
+
+                // sort resources with books on top
+                ltTopicModel.Resources = ltTopicModel.Resources.OrderByDescending( a => a.IsBook ).ToList();
 
                 ltTopicModels.Add( ltTopicModel );
             }
