@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
+using System.Net;
+using church.ccv.CCVRest.Common.Model;
 using church.ccv.CCVRest.MobileApp.Model;
 using church.ccv.Datamart.Model;
 using Rock;
@@ -239,7 +241,12 @@ namespace church.ccv.CCVRest.MobileApp
                     // AP
                     if ( associatePastor != null )
                     {
-                        MAGroupMemberModel maAssociatePastor = GetMAGroupMemberModel( associatePastor, MAGroupRole.AssociatePastor, true, Rock.SystemGuid.DefinedValue.PERSON_PHONE_TYPE_WORK.AsGuid() );
+                        MAGroupMemberModel maAssociatePastor = GetMAGroupMemberModel( associatePastor, MAGroupRole.AssociatePastor, true, Guid.Empty );
+
+                        // for the AP, get their forwarding number, and if there are more than one, just use the first we find
+                        List<string> phoneNumbers = CCVRest.Common.Util.GetAPForwardingNumber( associatePastor.PrimaryAlias?.Guid );
+                        maAssociatePastor.PhoneNumberDigits = phoneNumbers.FirstOrDefault();
+
                         groupResult.Members.Add( maAssociatePastor );
                     }
 
@@ -251,6 +258,10 @@ namespace church.ccv.CCVRest.MobileApp
                     foreach ( var groupMember in nonCoachGroupMembers )
                     {
                         MAGroupMemberModel maGroupMember = GetMAGroupMemberModel( groupMember.Person, MAGroupRole.Member, true, Rock.SystemGuid.DefinedValue.PERSON_PHONE_TYPE_MOBILE.AsGuid() );
+                        
+                        // If pending, flag that, so the mobile app's toolbox can let a Coach know.
+                        maGroupMember.IsPending = groupMember.GroupMemberStatus == GroupMemberStatus.Pending;
+
                         groupResult.Members.Add( maGroupMember );
                     }
                     break;
@@ -262,7 +273,12 @@ namespace church.ccv.CCVRest.MobileApp
                     // AP
                     if ( associatePastor != null )
                     {
-                        MAGroupMemberModel maAssociatePastor = GetMAGroupMemberModel( associatePastor, MAGroupRole.AssociatePastor, true, Rock.SystemGuid.DefinedValue.PERSON_PHONE_TYPE_WORK.AsGuid() );
+                        MAGroupMemberModel maAssociatePastor = GetMAGroupMemberModel( associatePastor, MAGroupRole.AssociatePastor, true, Guid.Empty );
+
+                        // for the AP, get their forwarding number, and if there are more than one, just use the first we find
+                        List<string> phoneNumbers = CCVRest.Common.Util.GetAPForwardingNumber( associatePastor.PrimaryAlias?.Guid );
+                        maAssociatePastor.PhoneNumberDigits = phoneNumbers.FirstOrDefault();
+
                         groupResult.Members.Add( maAssociatePastor );
                     }
 
@@ -315,6 +331,10 @@ namespace church.ccv.CCVRest.MobileApp
                 if ( photoGuid.IsEmpty() == false )
                 {
                     groupResult.PhotoURL = publicAppRoot + "GetImage.ashx?Guid=" + photoGuid;
+                }
+                else
+                {
+                    groupResult.PhotoURL = publicAppRoot + "Themes/church_ccv_External_v8/Assets/Images/support/mobile-app-no-group-photo.jpg";
                 }
             }
 
@@ -576,10 +596,38 @@ namespace church.ccv.CCVRest.MobileApp
                 apBoardModel = new APBoardModel();
                 apBoardModel.AssociatePastorName = associatePastor.NickName + " " + associatePastor.LastName;
                 apBoardModel.AssociatePastorImageURL = publicAppRoot + "GetImage.ashx?Id=" + associatePastor.PhotoId;
-
-                apBoardModel.Summary = apBoardItem.Content;
-                apBoardModel.Date = apBoardItem.StartDateTime.Date;
                 apBoardModel.TipOfTheWeek = apBoardItem.AttributeValues["TipOfTheWeek"].ToString();
+
+                // For the Summary, we'll need its value AND its ModifiedDateTime
+                AttributeValueCache summaryAVCache = apBoardItem.AttributeValues["APBoardContent"];
+                apBoardModel.Summary = summaryAVCache.ToString();
+
+                // for the date, see the last time the summary value was updated.
+                // Because AttributeValueCache doesn't bother to contain the AV's ID, we have to go the long way :-|
+                // Try to get the modified date time, and just use 'now' if something turns up null
+                var summaryAV = new AttributeValueService( rockContext ).Queryable()
+                                                                          .AsNoTracking()
+                                                                          .Where( av => av.EntityId == summaryAVCache.EntityId && 
+                                                                                        av.AttributeId == summaryAVCache.AttributeId )
+                                                                          .FirstOrDefault();
+                apBoardModel.Date = summaryAV?.ModifiedDateTime?.Date ?? DateTime.Now;
+
+                // fetch the actual media for this asset, and get a direct URL to its video
+                string wistiaId = apBoardItem.AttributeValues["WistiaId"].ToString();
+                if ( string.IsNullOrWhiteSpace( wistiaId ) == false )
+                {
+                    Common.Util.GetWistiaMedia( wistiaId,
+                        delegate ( HttpStatusCode statusCode, WistiaMedia media )
+                        {
+                            if ( statusCode == HttpStatusCode.OK )
+                            {
+                                apBoardModel.VideoURL = Common.Util.GetWistiaAssetMpeg4URL( media, WistiaAsset.IPhoneVideoFile );
+                                apBoardModel.VideoDate = media.Created;
+                                apBoardModel.VideoName = media.Name;
+                                apBoardModel.VideoThumbnailURL = media.Thumbnail.URL;
+                            }
+                        } );
+                }
             }
 
             return apBoardModel;

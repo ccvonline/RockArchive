@@ -108,6 +108,10 @@ hr {
     color: #FFFFFF;
     background-color: #E73D30;
     border: 1px solid #E73D30;
+    padding: 10px 20px;
+    font-size: 16px;
+    line-height: 18px;
+    font-weight: 800;
 }
 
 .btn-secondary {
@@ -266,7 +270,7 @@ a:focus {
 }
 
 .ccv-link {
-    color: #E73D30;
+    color: #E73D30 !important;
 }
 
 .navigation-primary-item-button a:hover {
@@ -629,7 +633,6 @@ a:focus {
     flex-direction: column;
     flex-grow: 1;
     color: rgba(0, 0, 0, 0.87);
-    background-color: #eeeeee;
     border-radius: 5px;
 }
 
@@ -653,7 +656,6 @@ a:focus {
     display: flex;
     justify-content: space-between;
     padding: 0px;
-    background-color: #ffffff;
 }
 
 .tabs {
@@ -699,6 +701,7 @@ a:focus {
 
 .tabbed-panel-view-cards .background-card {
     padding: 50px;
+    min-height: 350px;
 }
 
 .tabbed-panel-view-cards .left {
@@ -715,6 +718,14 @@ a:focus {
     align-items: center;
     width: 100%;
     height: 100%;
+}
+
+#practice-panel, #game-panel, #rules-panel {
+    background-color: #eeeeee;
+}
+
+.practice-panel, .game-panel, .rules-panel {
+    background-color: #eeeeee;
 }
 
 /* Select Sytle Dropdown */
@@ -758,7 +769,7 @@ a:focus {
 .summer-camps-row {
     display: flex;
     justify-content: center;
-    padding-top: 45px;
+    padding-bottom: 45px;
 }
 
 .summer-camps-row .rectangle {
@@ -844,6 +855,8 @@ a:focus {
 
 .sports-offered {
     display: flex;
+    justify-content: center;
+    align-items: center;
     padding-bottom: 10px;
 }
 
@@ -851,6 +864,12 @@ a:focus {
     width: 33px;
     height: 33px;
     margin-right: 10px;
+}
+
+.exceptional-stars img {
+    width: 45px;
+    height: 45px;
+    margin-left: -3px;
 }
 
 .campus-contact {
@@ -966,6 +985,8 @@ a:focus {
 .event-card-footer .link a {
     color: #E73D30;
     text-transform: uppercase;
+    font-family: akrobat;
+    font-weight: bold;
 }
 
 .link {
@@ -1036,6 +1057,7 @@ a:focus {
     letter-spacing: -.5px;
     font-weight: 600;
     color: #b2b2b2;
+    font-family: heebo;
     -webkit-font-smoothing: antialiased;
 }
 
@@ -1067,11 +1089,11 @@ a:focus {
 }
 
 .footer-copyright {
-    font-family: Roboto Condensed; 
+    font-family: akrobat;
     color: #b2b2b2;
     font-size: 10px;
 	line-height: 17px;
-    font-weight: 300;
+    font-weight: 500;
     text-align: center;
 }
 
@@ -1485,6 +1507,12 @@ a:focus {
 
     .announcement-bar-showing {
         padding-top: 110px;
+    }
+
+    .btn {
+        width: 100%;
+        max-width: unset;
+        margin: 5px 0;
     }
 
     /* Phone styling based on mobile design mookups */

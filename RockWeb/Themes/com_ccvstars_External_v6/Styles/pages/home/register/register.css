@@ -17,6 +17,7 @@
     max-width: 100%;
     padding: 70px 0 50px 0;
 }
+
 /* End Zones & Sections */
 
 .title h1 {
@@ -261,6 +262,10 @@
     margin-right: 20px;
 }
 
+.details-card h1,.details-card h2,.details-card h3,.details-card h4,.details-card h5,.details-card h6 {
+    color: #e73d30;
+}
+
 .content {
     flex-grow: 1;
 }
@@ -301,11 +306,6 @@
 
 .action .btn {
     font-weight: 800;
-    font-size: 21px;
-    line-height: 23px;
-    letter-spacing: -1.5px;
-    padding: 18px 40px;
-    border-radius: 6px;
 }
 
 .details-image img {

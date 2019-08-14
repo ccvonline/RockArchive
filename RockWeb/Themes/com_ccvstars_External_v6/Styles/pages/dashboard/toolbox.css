@@ -151,6 +151,10 @@ strong {
 /* End Person Info */
 
 /* Panels */
+#players-panel, #contact-team-panel, #resources-panel {
+    background-color: #EEEEEE;
+}
+
 #players-panel {
     padding: 0 15px;
 }
@@ -323,7 +327,29 @@ strong {
 }
 /* End Reources Styling */
 
+/* Start Contact Panel  */
+    .grid-actions .btn {
+    width: unset;
+}
+/* End Contact Panel */
+
 /* End Panels */
+
+/* Request Changes Form */
+.toolbox-form-card {
+    padding: 50px;
+}
+
+.toolbox-form-card h2 {
+    color: #000000;
+}
+
+.btn-request {
+    align-self: flex-end;
+    max-width: 190px;
+}
+
+/* End Changes Form */
 
 /**** Responsive Styling ****/
 @media screen and (max-width: 1439.98px) {
@@ -419,6 +445,10 @@ strong {
         width: 100%;
     }
 
+    .btn-primary {
+        width: 100%;
+    }
+
     /* End Overrides */
 
     /* Panels */
@@ -432,8 +462,10 @@ strong {
         padding-bottom: 10px;
     }
 
-    .resources-row { 
+    .resources-row {
         flex-direction: column;
+        margin: 0 5%;
+        padding: 10px 0;
     }
 
     .resources-content {
@@ -443,6 +475,11 @@ strong {
     }
 
     .resources-actions .btn {
+        width: 100%;
+    }
+
+    .resources-actions {
+        display: block;
         width: 100%;
     }
 
