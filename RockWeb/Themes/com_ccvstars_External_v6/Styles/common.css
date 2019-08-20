@@ -164,7 +164,7 @@ a:focus {
 }
 
 .dark a {
-    color: #E73E30;
+    color: #E73D30;
 }
 
 /**** End Defaults ****/
@@ -806,13 +806,8 @@ a:focus {
 }
 
 .summer-camps-row .btn-secondary h6 {
-    color: #E73D30;
+    color: inherit;
 }
-
-.summer-camps-row .btn-secondary h6:hover {
-    color: #FFFFFF;
-}
-
 
 /* Map Section */
 .our-campuses-map-window {
@@ -1046,7 +1041,6 @@ a:focus {
 .footer-links-section h5 {
     font-size: 19px;
     line-height: 8px;
-    letter-spacing: -1px;
     font-weight: 800;
     margin-bottom: 20px;
 }

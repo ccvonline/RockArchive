@@ -208,7 +208,6 @@
         var result
         var campusSports = campus.sports
         var campusRoute = campus.name.replace(' ','-').toLowerCase()
-        var campusEmail
 
         // create clickable map link
         var campusMapLink = ""
@@ -226,8 +225,6 @@
             result += '<h6>' + campus.name + '</h6>'
             result += '<div class="sports-offered">'
                 if ( campusSports.length > 0 ) {
-                    campusEmail = campus.name.replace(' ','').toLowerCase() + '@ccvstars.com'
-
                     if (campusSports.includes("baseball")) {
                         result += '<a href="/baseball/' + campusRoute + '"><img src="/Themes/com_ccvstars_External_v6/Assets/Images/icon/baseball-red.png"></a>'
                     }
@@ -244,15 +241,15 @@
                         result += '<a class="exceptional-stars" href="/exceptional-stars/' + campusRoute + '"><img src="/Themes/com_ccvstars_External_v6/Assets/Images/icon/exceptional-stars-red.png"></a>'
                     }
                 } else {
-                    campusEmail = "youthsports@ccvstars.com"
                     result += '<p>No sports currently offered</p>'
                 }
             result += '</div>'
             result += '<div class="campus-contact">'
-            result += '<a href="mailto:' + campusEmail +  '"><img src="/Themes/com_ccvstars_External_v6/Assets/Images/icon/email-red.png"></a>'
+            result += '<a href="/stars-contact-us?Campus=' +  campusRoute +  '"><img src="/Themes/com_ccvstars_External_v6/Assets/Images/icon/email-red.png"></a>'
             result += `<a href="` + campusMapLink + `" ` + mapNewWindow + `><p>` + campus.street + '<br />'
             result += campus.city + ', ' + campus.state + ' ' + campus.zip + '</p></a>'
             result += '</div>'
+            result += '<a href="tel:+1' + campus.starsContactNumber.replace(/[^A-Z0-9]/ig,'') + '">' + campus.starsContactNumber + '</a>'
             result += '<a href="https://ccv.church/' + campusRoute + '">ccv.church/'+ campusRoute +'</a>'
         result += '</div>'
         return result

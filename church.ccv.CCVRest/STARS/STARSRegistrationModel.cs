@@ -7,6 +7,10 @@ namespace church.ccv.CCVRest.STARS
     {
         public int EventOccurrenceId;
 
+        public DateTime? EventOccurrenceDate;
+
+        public string EventSummary;
+
         public int? RegistrationInstanceId;
 
         public string Campus;
@@ -19,8 +23,12 @@ namespace church.ccv.CCVRest.STARS
 
         public string Season;
 
+        public string Grades;
+
         public int SlotsAvailable;
 
         public bool WaitListEnabled;
+
+        public decimal? Cost;
     }
 }
