@@ -53,6 +53,7 @@
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Web" />
@@ -65,11 +66,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Communication\CCVSMTP.cs" />
+    <Compile Include="Communication\CCVSMTPComponent.cs" />
     <Compile Include="Group\ToolboxGroupMemberDetail.ascx.cs">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Jobs\ChurchOnlinePlatformLiveCheck.cs" />
     <Compile Include="Jobs\ParentResourceNotifications.cs" />
+    <Compile Include="Jobs\RunSQLAdvanced.cs" />
     <Compile Include="Jobs\SendConnectionReport.cs" />
     <Compile Include="Jobs\CreateFirstVisitWorkflows.cs" />
     <Compile Include="Jobs\GroupMemberFollowUpNotifications.cs" />
