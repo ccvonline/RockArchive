@@ -10,8 +10,9 @@ namespace church.ccv.CCVRest.STARS.Util
 {
     class STARSFieldStatusService
     {
-        // attribute id for field status attributes and content channel id
+        // attribute id for field status attribute, summary attribute and content channel id
         private static int _attributeId_FieldStatus = 94565;
+        private static int _attributeId_Summary = 94566;
         private static int _contentChannelId_CampusFieldStatus = 314;
 
         /// <summary>
@@ -30,24 +31,38 @@ namespace church.ccv.CCVRest.STARS.Util
             ContentChannel fieldStatusContent = contentChannelService.Get( _contentChannelId_CampusFieldStatus );
 
             // loop through the items in the field status content channel
-            foreach ( var item in fieldStatusContent.Items )
+            foreach ( ContentChannelItem item in fieldStatusContent.Items )
             {
                 item.LoadAttributes();
 
-                var avCampus = item.AttributeValues["Campus"];
-                var avSummary = item.AttributeValues["Summary"];
+                AttributeValueCache avCampus = item.AttributeValues["Campus"];
 
-                // get field status atrribute value by passing attribute Id and content item id
+                // get field status and summary atrribute value by passing attribute Id and content item id
                 AttributeValue fieldStatusAttributeValue = attributeValueService.GetByAttributeIdAndEntityId( _attributeId_FieldStatus, item.Id );
+                AttributeValue summaryAttributeValue = attributeValueService.GetByAttributeIdAndEntityId( _attributeId_Summary, item.Id );
 
                 // create new field status model object
                 STARSFieldStatusModel fieldStatusModel = new STARSFieldStatusModel();
 
                 fieldStatusModel.EntityId = item.Id;
 
-                if ( fieldStatusAttributeValue != null )
+                if ( fieldStatusAttributeValue != null && summaryAttributeValue != null )
                 {
                     fieldStatusModel.FieldStatus = fieldStatusAttributeValue.Value;
+                    fieldStatusModel.Summary = summaryAttributeValue.Value;
+
+                    if ( fieldStatusAttributeValue.ModifiedDateTime != null && summaryAttributeValue.ModifiedDateTime != null )
+                    {
+                        // set the model modified datetime to latest modifiedDateTime
+                        if ( fieldStatusAttributeValue.ModifiedDateTime > summaryAttributeValue.ModifiedDateTime )
+                        {
+                            fieldStatusModel.ModifiedDateTime = String.Format( "{0:g}", fieldStatusAttributeValue.ModifiedDateTime );
+                        }
+                        else
+                        {
+                            fieldStatusModel.ModifiedDateTime = String.Format( "{0:g}", summaryAttributeValue.ModifiedDateTime );
+                        }
+                    }
                 }
 
                 if ( avCampus != null )
@@ -55,17 +70,6 @@ namespace church.ccv.CCVRest.STARS.Util
                     fieldStatusModel.CampusName = avCampus.Value;
                 }
 
-                if ( avSummary != null )
-                {
-                    fieldStatusModel.Summary = avSummary.Value;
-                }
-
-                if ( fieldStatusAttributeValue.ModifiedDateTime != null )
-                {            
-                    // set the model modified datetime to new formatted modified datetime
-                    fieldStatusModel.ModifiedDateTime = String.Format( "{0:g}", fieldStatusAttributeValue.ModifiedDateTime );
-                }
-               
                 fieldStatusList.Add( fieldStatusModel );
             }
 
