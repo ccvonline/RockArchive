@@ -1305,6 +1305,27 @@ namespace RockWeb.Plugins.church_ccv.Event
                 }
             }
 
+            // if we still do not have a campus, fetch it directly from
+            // the page parameter
+            if ( !CampusId.HasValue && campusId.HasValue )
+            {
+                CampusId = campusId;
+            }
+
+            // if we still do not have a campus, fetch it from
+            // the current context
+            if ( !CampusId.HasValue )
+            {
+                if ( this.RockPage != null )
+                {
+                    var campus = this.RockPage.GetCurrentContext( EntityTypeCache.Read( "Rock.Model.Campus" ) );
+                    if ( campus != null )
+                    {
+                        CampusId = campus.Id;
+                    }
+                }
+            }
+
             if ( RegistrationState != null )
             {
                 if ( !RegistrationState.RegistrationId.HasValue && RegistrationInstanceState != null && RegistrationInstanceState.MaxAttendees > 0 )
@@ -1570,6 +1591,16 @@ namespace RockWeb.Plugins.church_ccv.Event
                             {
                                 if ( !ProcessPayment( rockContext, registration, out errorMessage ) )
                                 {
+                                    // Custom CCV error message
+                                    // The [19] error message is a bit vague but means that the transaction code
+                                    // linked to the saved account has expired with Payflow.  As a temporary
+                                    // work around until we build the Pushpay integration, we will let the end
+                                    // user know to re-enter their card info.
+                                    if ( errorMessage == "[19] Original transaction ID not found" )
+                                    {
+                                        errorMessage = "We were not able to use the card information on file.  Please try again, select \"New Payment Method\" and enter your card details.";
+                                    }
+
                                     throw new Exception( errorMessage );
                                 }
                             }
