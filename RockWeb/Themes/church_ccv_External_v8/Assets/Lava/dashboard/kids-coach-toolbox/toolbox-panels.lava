@@ -75,6 +75,10 @@
     <div class="header">
         <h4>Thank You</h4>
     </div>
+    
+    <div class="resource-links">
+        <a class="btn btn-primary" href="~/Content/ccv.church/NextGen/Toolbox%20Documents/Kids%20Coach%20Handbook.pdf" target="_blank">Kids Coach Handbook</a>
+    </div>
 
     <div class="message-video">
         <div class="embed-responsive embed-responsive-16by9">
