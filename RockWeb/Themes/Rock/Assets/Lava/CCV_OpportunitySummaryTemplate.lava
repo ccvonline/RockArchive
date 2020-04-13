@@ -71,6 +71,24 @@
             {% if connectionRequest.ConnectionStatusId == 17 %}
                 {% assign StarsInProgressOtherCount = StarsInProgressOtherCount | Plus:1 %}
             {% endif %}
+            {% if connectionRequest.ConnectionStatusId == 19 %}
+                {% assign InProgressPlacementCount = InProgressPlacementCount | Plus:1 %}
+            {% endif %}
+            {% if connectionRequest.ConnectionStatusId == 20 %}
+                {% assign InProgressOtherCount = InProgressOtherCount | Plus:1 %}
+            {% endif %}
+            {% if connectionRequest.ConnectionStatusId == 22 %}
+                {% assign InProgressOtherCount = InProgressOtherCount | Plus:1 %}
+            {% endif %}
+            {% if connectionRequest.ConnectionStatusId == 23 %}
+                {% assign InProgressOtherCount = InProgressOtherCount | Plus:1 %}
+            {% endif %}
+            {% if connectionRequest.ConnectionStatusId == 24 %}
+                {% assign StarsInProgressOtherCount = StarsInProgressOtherCount | Plus:1 %}
+            {% endif %}
+            {% if connectionRequest.ConnectionStatusId == 25 %}
+                {% assign NoContactCount = NoContactCount | Plus:1 %}
+            {% endif %}
         {% endif %}
 	{% endif %}
 {% endfor %}

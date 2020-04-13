@@ -71,7 +71,8 @@ namespace church.ccv.CCVRest.MobileApp
         public async Task<HttpResponseMessage> CCVLiveCountdown()
         {
             // make a request to the CCV Live API and get its status, then forward it to the client
-            const string CCVLiveAPI = "https://ccvlive.churchonline.org/api/v1/events/current";
+            //const string CCVLiveAPI = "https://ccvlive.churchonline.org/api/v1/events/current";
+            const string CCVLiveAPI = "https://ccv-church-api.azurewebsites.net/ccvlive";
 
             HttpClient client = new HttpClient();
             HttpResponseMessage response = await client.GetAsync( CCVLiveAPI );
@@ -80,25 +81,18 @@ namespace church.ccv.CCVRest.MobileApp
                 return Common.Util.GenerateResponse( false, CCVLiveCountdownResponse.BadResponse.ToString(), null );
             }
 
-            // we expect the a json formatted response with an ""response->item" in it. If any parsing fails,
-            // respond with BadResponse
-            try
+            // we expect the a json formatted response. If any parsing fails, respond with BadResponse
+            CCVLiveCountdownModel liveResponse = await response.Content.ReadAsAsync<CCVLiveCountdownModel>();
+            if (liveResponse == null)
             {
-                var countdownResponse = await response.Content.ReadAsAsync<JObject>();
-
-                var responseJToken = countdownResponse["response"];
-                JToken itemToken = responseJToken["item"];
-                CCVLiveCountdownModel liveResponse = itemToken.ToObject<CCVLiveCountdownModel>();
-
-                // now add the data for the latest message, since the countdown banner wants that as well.
-                liveResponse.LatestMessage = MAPodcastService.GetLatestMessage();
-
-                return Common.Util.GenerateResponse( true, CCVLiveCountdownResponse.Success.ToString(), liveResponse );
+                return Common.Util.GenerateResponse(false, CCVLiveCountdownResponse.BadResponse.ToString(), null);
             }
-            catch
-            {
-                return Common.Util.GenerateResponse( false, CCVLiveCountdownResponse.BadResponse.ToString(), null );
-            }
+
+            // now add the data for the latest message, since the countdown banner wants that as well.
+            liveResponse.LatestMessage = MAPodcastService.GetLatestMessage();
+
+            // success!
+            return Common.Util.GenerateResponse(true, CCVLiveCountdownResponse.Success.ToString(), liveResponse);
         }
 
         [Serializable]
