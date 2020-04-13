@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Web.Http;
+using church.ccv.CCVCore.PushNotification.Util;
 using church.ccv.CCVRest.MobileApp.Model;
 using Rock;
 using Rock.Data;
@@ -242,6 +243,28 @@ namespace church.ccv.CCVRest.MobileApp
 
             // notify them this email wasn't attached to any logins
             return Common.Util.GenerateResponse( false, ForgotPasswordResponse.EmailNotFound.ToString(), null );
+        }
+
+        [Serializable]
+        public enum DeviceIdResponse
+        {
+            NotSet = -1,
+            Success
+        }
+
+        [System.Web.Http.HttpPost]
+        [System.Web.Http.Route( "api/NewMobileApp/DeviceId" )]
+        [Authenticate, Secured]
+        public HttpResponseMessage AccessToken( [FromBody]string deviceId, string platform, int primaryAliasId )
+        {
+            int? nullablePrimaryAliasId = null;
+            if ( primaryAliasId > 0 )
+            {
+                nullablePrimaryAliasId = primaryAliasId;
+            }
+            PushNotificationService.SaveDevice( deviceId, platform, nullablePrimaryAliasId );
+
+            return Common.Util.GenerateResponse( true, DeviceIdResponse.Success.ToString(), null );
         }
     }
 }
