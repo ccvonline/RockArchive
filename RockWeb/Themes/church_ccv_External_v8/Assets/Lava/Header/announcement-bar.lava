@@ -1,10 +1,10 @@
-{% comment %} 
+{% comment %}
 {% include '~~/Assets/Lava/header/announcement-bar.lava' %}
 {% endcomment %}
 
 {% assign ccvLive = 'Global' | Attribute:'CCVLive' %}
 {% if ccvLive == 'Yes' %}
-    
+
     {% comment %}
     {% if CurrentPerson %}
         {% assign liveURL = '/ssologin' %}
@@ -12,7 +12,7 @@
         {% assign liveURL = 'http://live.ccv.church' %}
     {% endif %}
     {% endcomment %}
-    
+
     {% assign liveURL = 'https://ccv.church/ccv-live.html' %}
     <div class="announcement-bar">
         <btn id="ccvlive" class="btn btn-default btn-live">Live</btn>CCV is live!<span> <a href="{{ liveURL }}">Watch now ></a></span>
@@ -28,10 +28,10 @@
 			</div>
 		{% endunless %}
 	{% endcomment %}
-	
+
 	<div class="announcement-bar">
-		<a href="https://ccv.church/update.html">Updates on Coronavirus (COVID-19)</a>
+		<a href="https://ccv.church/update">Updates on Coronavirus (COVID-19)</a>
 	</div>
-	
+
 {% endif %}
 
