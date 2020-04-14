@@ -28,6 +28,8 @@ REQUIRED VARIABLES
 
     {% if fullService %}
         {% capture pageTitle %}{{ pageTitle }} (Full Service){% endcapture %}
+    {% elseif spanishVersion %}
+        {% capture pageTitle %}{{ pageTitle }} (Spanish Version){% endcapture %}
     {% endif %}
 
     {% capture twitterImage %}https://ccv.church/GetImage.ashx?guid={{ Series.Attributes.Image_1_1 }}{% endcapture %}
@@ -38,21 +40,35 @@ REQUIRED VARIABLES
     {{ pageTitle | SetPageTitle }}
     {{ pageTitle | AddMetaTagToHead: 'property', 'og:title' }}
     {{ Message.Description | AddMetaTagToHead: 'property', 'og:description' }}
-	
+
 	{% capture ogImage %}https://ccv.church/GetImage.ashx?guid={{ Series.Attributes.Image_1_1 }}{% endcapture %}
     {{ ogImage | AddMetaTagToHead: 'property', 'og:image' }}
 	{{ '1000' | AddMetaTagToHead: 'property', 'og:image:width' }}
 	{{ '1000' | AddMetaTagToHead: 'property', 'og:image:height' }}
 
+    {% assign fullVideoUrl = Message.Attributes.3rdPartyFullVideoUrl %}
+    {% assign spanishVideoUrl = Message.Attributes.3rdPartySpanishVideoUrl %}
+    {% assign messageVideoUrl = Message.Attributes.3rdPartyMessageVideoUrl %}
+
     <div class="message-card">
         {% if Message.Attributes.3rdPartyFullVideoUrl != empty %}
             <div class="btn-group btn-group-justified message-buttons-mobile">
                 {% if fullService %}
-                    <a class="btn btn-default" href="{{ LinkedPages.MessageOnlyPage }}?MessageId={{ Message.Id }}">Message Only</a>
-                    <a class="btn btn-default active" href="{{ LinkedPages.FullServicePage }}?MessageId={{ Message.Id }}">Full Service</a>
+                    <a class="btn btn-default" href="/watch/message?MessageId={{ Message.Id }}">Message Only</a>
+                    <a class="btn btn-default active" href="/watch/full-service?MessageId={{ Message.Id }}">Full Service</a>
+                    {% if spanishVideoUrl != empty %}
+                        <a class="btn btn-default" href="/watch/spanish-version?MessageId={{ Message.Id }}">Spanish</a>
+                    {% endif %}
+                {% elseif spanishVersion %}
+                    <a class="btn btn-default" href="/watch/message?MessageId={{ Message.Id }}">Message Only</a>
+                    <a class="btn btn-default" href="/watch/full-service?MessageId={{ Message.Id }}">Full Service</a>
+                    <a class="btn btn-default active" href="/watch/spanish-version?MessageId={{ Message.Id }}">Spanish</a>
                 {% else %}
-                    <a class="btn btn-default active" href="{{ LinkedPages.MessageOnlyPage }}?MessageId={{ Message.Id }}">Message Only</a>
-                    <a class="btn btn-default" href="{{ LinkedPages.FullServicePage }}?MessageId={{ Message.Id }}">Full Service</a>
+                    <a class="btn btn-default active"href="/watch/message?MessageId={{ Message.Id }}">Message Only</a>
+                    <a class="btn btn-default" href="/watch/full-service?MessageId={{ Message.Id }}">Full Service</a>
+                    {% if spanishVideoUrl != empty %}
+                        <a class="btn btn-default" href="/watch/spanish-version?MessageId={{ Message.Id }}">Spanish</a>
+                    {% endif %}
                 {% endif %}
             </div>
         {% endif %}
@@ -68,7 +84,7 @@ REQUIRED VARIABLES
             <div class="message-details-info">
                 {{ Message.Attributes.ExtraDetails }}
             </div>
-        
+
             <div class="message-details-info">
                 <p>{{ Message.Description }}</p>
             </div>
@@ -112,18 +128,27 @@ REQUIRED VARIABLES
         </div>
 
         <div class="message-sidebar">
+            <div class="btn-group btn-group-justified message-buttons-desktop">
             {% if Message.Attributes.3rdPartyFullVideoUrl != empty %}
-                <div class="btn-group btn-group-justified message-buttons-desktop">
                     {% if fullService %}
-                        <a class="btn btn-default" href="{{ LinkedPages.MessageOnlyPage }}?MessageId={{ Message.Id }}">Message Only</a>
-                        <a class="btn btn-default active" href="{{ LinkedPages.FullServicePage }}?MessageId={{ Message.Id }}">Full Service</a>
+                        <a class="btn btn-default" href="/watch/message?MessageId={{ Message.Id }}">Message Only</a>
+                        <a class="btn btn-default active" href="/watch/full-service?MessageId={{ Message.Id }}">Full Service</a>
+                        {% if spanishVideoUrl != empty %}
+                            <a class="btn btn-default" href="/watch/spanish-version?MessageId={{ Message.Id }}">Spanish</a>
+                        {% endif %}
+                    {% elseif spanishVersion %}
+                        <a class="btn btn-default" href="/watch/message?MessageId={{ Message.Id }}">Message Only</a>
+                        <a class="btn btn-default" href="/watch/full-service?MessageId={{ Message.Id }}">Full Service</a>
+                        <a class="btn btn-default active" href="/watch/spanish-version?MessageId={{ Message.Id }}">Spanish</a>
                     {% else %}
-                        <a class="btn btn-default active" href="{{ LinkedPages.MessageOnlyPage }}?MessageId={{ Message.Id }}">Message Only</a>
-                        <a class="btn btn-default" href="{{ LinkedPages.FullServicePage }}?MessageId={{ Message.Id }}">Full Service</a>
+                        <a class="btn btn-default active"href="/watch/message?MessageId={{ Message.Id }}">Message Only</a>
+                        <a class="btn btn-default" href="/watch/full-service?MessageId={{ Message.Id }}">Full Service</a>
+                        {% if spanishVideoUrl != empty %}
+                            <a class="btn btn-default" href="/watch/spanish-version?MessageId={{ Message.Id }}">Spanish</a>
+                        {% endif %}
                     {% endif %}
-                </div>
             {% endif %}
-
+            </div>
             <div class="panel panel-default">
                 <div class="panel-heading">Related Downloads</div>
                 <div class="list-group">
@@ -148,7 +173,7 @@ REQUIRED VARIABLES
 	{% for member in groupMembers %}
 		{% assign admin = member  %}
 	{% endfor %}
-	
+
 	{% if admin %}
         <p class="alert alert-warning">If you could not edit you would be redirected to: <a href="/watch/messages">Messages</a> because the message id is invalid</p>
     {% else %}
@@ -163,7 +188,7 @@ REQUIRED VARIABLES
     // Get the buttons that opens the modals
     var shareButton = document.getElementById('shareButton');
 
-    // When the user clicks the button, open the modal 
+    // When the user clicks the button, open the modal
     shareButton.onclick = function() {
         if (navigator.share) {
             navigator.share({
@@ -181,5 +206,5 @@ REQUIRED VARIABLES
         if (event.target == shareModal ) {
             shareModal.style.display = "none";
         }
-    }            
+    }
 </script>

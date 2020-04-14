@@ -59,6 +59,9 @@
         width: 75%;
     }
     
+    .message-buttons-desktop a {
+        font-size: 14px;
+    }
 
     #section-a-bg {
         padding-bottom: 20px;
@@ -88,6 +91,10 @@
     .message-buttons-mobile {
         display: table;
         margin-bottom: 20px;
+    }
+
+    .message-buttons-mobile a {
+        font-size: 14px;
     }
 
     .message-buttons-desktop {
