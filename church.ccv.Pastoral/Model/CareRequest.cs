@@ -9,6 +9,8 @@ using Rock.SystemGuid;
 
 using Rock.Data;
 using Rock.Model;
+using Rock;
+using Rock.Web.Cache;
 
 namespace church.ccv.Pastoral.Model
 {
@@ -373,6 +375,67 @@ namespace church.ccv.Pastoral.Model
         public override string ToString()
         {
             return this.RequestText;
+        }
+
+        /// <summary>
+        /// Pres the save changes.
+        /// </summary>
+        /// <param name="dbContext">The database context.</param>
+        /// <param name="entry">The entry.</param>
+        public override void PreSaveChanges( Rock.Data.DbContext dbContext, System.Data.Entity.Infrastructure.DbEntityEntry entry )
+        {
+            var rockContext = ( RockContext ) dbContext;
+
+            int? oldWorkerId = null;
+            int? newWorkerId = null;
+
+            switch ( entry.State )
+            {
+                case System.Data.Entity.EntityState.Added:
+                {
+                    // If a Worker is assigned when this was first saved, trigger the notification workflow.
+                    if ( this.WorkerPersonAliasId.HasValue )
+                    {
+                        var worker = new PersonAliasService( rockContext ).GetPerson( this.WorkerPersonAliasId.Value );
+                        if ( worker != null )
+                        {
+                            Guid workflowGuid = church.ccv.Pastoral.SystemGuids.Workflow.NOTIFY_CARE_WORKER.AsGuid();
+                            var workflowType = WorkflowTypeCache.Read( workflowGuid );
+
+                            if ( workflowType != null )
+                            {
+                                Dictionary<string, string> attributeValues = new Dictionary<string, string>();
+                                LaunchWorkflow( workflowType.Guid, "Notification", attributeValues );
+                            }
+                        }
+                    }
+
+                    break;
+                }
+                case System.Data.Entity.EntityState.Modified:
+                {
+                    // check to see if the Worker has changed during save.  If so, trigger the notification workflow.
+                    oldWorkerId = entry.OriginalValues["WorkerPersonAliasId"].ToStringSafe().AsIntegerOrNull();
+                    newWorkerId = this.WorkerPersonAliasId;
+
+                    if ( 
+                            ( newWorkerId.HasValue && oldWorkerId.HasValue && ( oldWorkerId.Value != newWorkerId.Value )) ||
+                            ( newWorkerId.HasValue && !oldWorkerId.HasValue )
+                        )
+                    {
+                        Guid workflowGuid = church.ccv.Pastoral.SystemGuids.Workflow.NOTIFY_CARE_WORKER.AsGuid();
+                        var workflowType = WorkflowTypeCache.Read( workflowGuid );
+
+                        if ( workflowType != null )
+                        {
+                            Dictionary<string, string> attributeValues = new Dictionary<string, string>();
+                            LaunchWorkflow( workflowType.Guid, "Notification", attributeValues );
+                        }
+                    }
+
+                    break;
+                }
+            }
         }
 
         #endregion
