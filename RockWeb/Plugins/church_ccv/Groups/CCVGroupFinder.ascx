@@ -19,8 +19,7 @@
                 <asp:Panel ID="pnlSearch" runat="server">
 
                     <asp:ValidationSummary ID="valSummary" runat="server" HeaderText="Please Correct the Following" CssClass="alert alert-danger" />
-
-                    <Rock:AddressControl ID="acAddress" runat="server" Required="true" RequiredErrorMessage="Your Address is Required" />
+                    
                     <Rock:RockCheckBoxList ID="cblCampus" runat="server" Label="Campuses" DataTextField="Name" DataValueField="Id" RepeatDirection="Horizontal" />
                     <asp:PlaceHolder ID="phFilterControls" runat="server" />
                     <br />
@@ -29,12 +28,17 @@
                             <h4>Keyword Search</h4>
                         </div>
                         <div class="col-md-6">
-                            <Rock:RockTextBox ID="tbGroupName" runat="server" Label="Group Name" />
+                            <Rock:RockTextBox ID="tbGroupName" runat="server" Label="Coach Name" />
                         </div>
                         <div class="col-md-6">
-                            <Rock:RockTextBox ID="tbGroupDescription" runat="server" Label="Group Description (Neighborhood, Life Stage, Interests, etc)" />
+                            <Rock:RockTextBox ID="tbGroupDescription" runat="server" Label="Group Description" />
                         </div>
                     </div>
+
+                    <br />
+                    <h4>Address</h4>
+                    <Rock:AddressControl ID="acAddress" runat="server" Required="true" RequiredErrorMessage="Your Address is Required" />
+                    <br />
 
                     <div class="actions">
                         <asp:LinkButton ID="btnSearch" runat="server" Text="Search" CssClass="btn btn-primary" OnClick="btnSearch_Click" />
