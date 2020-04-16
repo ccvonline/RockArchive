@@ -1,0 +1,36 @@
+<script>
+var CCV = CCV || {}
+
+CCV.findCampusById = function (campusId) {
+  return CCV.locations.filter(function (campus) { return campus.id == campusId })[0]
+}
+
+{% assign activeCampuses = Campuses | Where: 'IsActive', true %}
+CCV.locations = [
+{% for campus in activeCampuses %}
+  {% assign healthcareChildCareTimes = campus | Attribute:'HealthcareChildcareTimes' %}
+  {% if healthcareChildCareTimes != "" %}
+    {
+      id: '{{ campus.Id }}',
+      name: '{{ campus.Name }}',
+      shortcode: '{{ campus.ShortCode }}',
+      {% if campus.Location.Latitude and campus.Location.Longitude %}geo: {
+        lat: {{ campus.Location.Latitude }},
+        lng: {{ campus.Location.Longitude }},
+      },{% endif %}
+      phone: '{{ campus.PhoneNumber }}',
+      street: '{{ campus.Location.Street1 }}',
+      city: '{{ campus.Location.City }}',
+      state: '{{ campus.Location.State }}',
+      zip: '{{ campus.Location.PostalCode }}',
+      photo: '{{ campus.Location.ImageUrl }}',
+      url: '{{ campus.Url }}',
+      healthcareChildcareRegistrationInstanceId: "{{ campus | Attribute:'HealthcareChildcareRegistrationInstanceId' }}",
+      healthcareChildcareAges: "{{ campus | Attribute:'HealthcareChildcareAges' }}",
+      healthcareChildcareTimes: "{{ campus | Attribute:'HealthcareChildcareTimes' }}"
+    }
+    {% unless forloop.last %},{% endunless %}
+  {% endif %}
+{% endfor %}
+]
+</script>

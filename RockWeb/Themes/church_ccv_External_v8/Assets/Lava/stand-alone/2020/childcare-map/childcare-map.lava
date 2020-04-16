@@ -1,0 +1,10 @@
+<script>var googleApiKey = "{{ 'Global' | Attribute:'GoogleAPIKey' }}";</script>
+
+<div id="childcare-campuses-map-window" class="childcare-campuses-map-window">
+   <div id="childcare-campuses-map" class="childcare-campuses-map">Loading...</div>
+</div>
+
+{% include '~~/Assets/Lava/stand-alone/2020/childcare-map/script-childcare-locations.lava' %}
+
+<script src="~~/Assets/Lava/stand-alone/2020/childcare-map/_childcaremap.js"></script>
+<script src="~~/Assets/Lava/stand-alone/2020/childcare-map/childcare-campuses-map.js"></script>  
