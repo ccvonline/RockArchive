@@ -17,6 +17,7 @@ using Rock.Lava;
 using Rock.Model;
 using Rock.Rest.Filters;
 using Rock.Web.Cache;
+using church.ccv.CCVRest;
 
 namespace church.ccv.CCVRest.MobileApp
 {
@@ -198,6 +199,9 @@ namespace church.ccv.CCVRest.MobileApp
             {
                 // get all active campuses (false means don't include inactive ones)
                 campusCacheList = CampusCache.All( false );
+
+                // exclude CCV Online
+                campusCacheList = campusCacheList.Where( c => c.Id != Common.Defines.CampusId_CCVOnline ).ToList();
             }
 
             // if we couldn't load any campuses, they asked for one that doesn't exist

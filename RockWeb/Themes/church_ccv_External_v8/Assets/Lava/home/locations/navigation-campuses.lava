@@ -1,11 +1,11 @@
-{% comment %} 
-    {% include '~~/Assets/Lava/home/locations/navigation-campuses.lava' %} 
+{% comment %}
+    {% include '~~/Assets/Lava/home/locations/navigation-campuses.lava' %}
 {% endcomment %}
 
 <div class="navigation-secondary-desktop">
     <ul class="navigation-secondary-items">
         {% for campus in Campuses %}
-            {% if campus.IsActive == true %}
+            {% if campus.IsActive == true and campus.Id != 12 %}
                 {% assign campusUrlSegment = campus.Name | Downcase | Replace:' ', '-' %}
 
                 {% assign navSection = '' %}
@@ -34,7 +34,7 @@
         <button class="dropdown-toggle" type="button" data-toggle="dropdown" style="border: 0px;">Navigate<b class="fa fa-caret-down"></b></button>
         <ul class="dropdown-menu">
             {% for campus in Campuses %}
-                {% if campus.IsActive == true %}
+                {% if campus.IsActive == true and campus.Id != 12 %}
                     {% assign campusUrlSegment = campus.Name | Downcase | Replace:' ', '-' %}
 
                     {% assign navSection = '' %}

@@ -54,7 +54,28 @@ namespace church.ccv.CCVRest.MobileApp
                 }
             }
 
-            List<MAGroupModel> groupResults = MAGroupService.GetMobileAppGroups( nameKeyword, descriptionKeyword, locationForDistance, requiresChildcare, skip, top );
+            List<MAGroupModel> groupResults = MAGroupService.GetPhysicalMobileAppGroups( nameKeyword, descriptionKeyword, locationForDistance, requiresChildcare, skip, top );
+
+            return Common.Util.GenerateResponse( true, SearchGroupsResponse.Success.ToString(), groupResults );
+        }
+
+        [Serializable]
+        public enum SearchOnlineGroupsResponse
+        {
+            NotSet = -1,
+
+            Success
+        }
+
+        [System.Web.Http.HttpGet]
+        [System.Web.Http.Route( "api/NewMobileApp/SearchOnlineGroups" )]
+        [Authenticate, Secured]
+        public HttpResponseMessage SearchOnlineGroups( string nameKeyword = "",
+                                                       string descriptionKeyword = "",
+                                                       int? skip = null,
+                                                       int top = 10 )
+        {
+           List<MAGroupModel> groupResults = MAGroupService.GetOnlineMobileAppGroups( nameKeyword, descriptionKeyword, skip, top );
 
             return Common.Util.GenerateResponse( true, SearchGroupsResponse.Success.ToString(), groupResults );
         }

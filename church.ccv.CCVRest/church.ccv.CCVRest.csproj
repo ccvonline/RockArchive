@@ -103,6 +103,7 @@
     <Compile Include="Common\Model\PersonPhotoModel.cs" />
     <Compile Include="Common\Model\ResponseModel.cs" />
     <Compile Include="Common\Model\WistiaModels.cs" />
+    <Compile Include="Common\Defines\Defines.cs" />
     <Compile Include="Common\Util\Util.cs" />
     <Compile Include="MobileApp\Controllers\MAAccountController.cs" />
     <Compile Include="MobileApp\Controllers\MAContentController.cs" />
@@ -145,6 +146,8 @@
     <Compile Include="STARS\Model\STARSRegistrationModel.cs" />
     <Compile Include="STARS\Util\STARSContentService.cs" />
     <Compile Include="STARS\Util\STARSRegistrationService.cs" />
+    <Compile Include="General\GeneralController.cs" />
+    <Compile Include="StreamingBox\StreamingBoxController.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

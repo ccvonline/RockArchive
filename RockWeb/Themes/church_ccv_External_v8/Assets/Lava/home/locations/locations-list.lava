@@ -2,7 +2,7 @@
 
 <div class="campus-cards-row">
     {% for campus in Campuses %}
-        {% if campus.IsActive == 'True' %}
+        {% if campus.IsActive == 'True' and campus.Id != 12 %}
             <div class="campus-card">
                 <div class="image">
                     {% assign imageGuid = campus | Attribute:'FeatureImage', 'RawValue' %}
@@ -53,7 +53,7 @@
     </div> 
     
     {% for campus in Campuses %}
-        {% if campus.IsActive == 'True' %}
+        {% if campus.IsActive == 'True' and campus.Id != 12 %}
             <div class="campus-card hidden" id="{{campus.Name | Replace:' ', '-' | Downcase }}">
                 <div class="image">
                     {% assign imageGuid = campus | Attribute:'FeatureImage', 'RawValue' %}

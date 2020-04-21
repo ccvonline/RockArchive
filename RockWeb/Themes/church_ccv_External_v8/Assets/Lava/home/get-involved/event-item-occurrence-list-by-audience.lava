@@ -25,7 +25,7 @@ list, but marked differently.
 		{% if EventItemOccurrences != empty %}
 			<div class="event-item-list-container">
 
-				{% comment %} 
+				{% comment %}
 				We should only show 6. Since the list contains more than that, keep a counter that we'll decrement each time we render a valid event.
 				If we just limit the list to 6 using limit:6, its possible some of those 6 dont have open registrations, and therefore we'd show less than we should.
 				{% endcomment %}
@@ -38,9 +38,9 @@ list, but marked differently.
 						{% assign currentDateTime = 'Now' | Date:'yyyy/MM/dd hh:mm:ss tt' %}
 						{% if linkage.RegistrationInstance.StartDateTime <= currentDateTime and linkage.RegistrationInstance.EndDateTime >= currentDateTime %}
 							{% assign maxNum = maxNum | Minus:1 %}
-							{% if occurrence.EventItemId == regularEventId %} 
+							{% if occurrence.EventItemId == regularEventId %}
 								{% assign ministryLogo = " " %}
-								{% assign eventName = linkage.RegistrationInstance.Name | Downcase %} 
+								{% assign eventName = linkage.RegistrationInstance.Name | Downcase %}
 								{% if eventName contains "kids" %}
 									{% assign ministryLogo = '<img class="img-responsive" src="/Themes/church_ccv_External_v8/Assets/Images/logos/logo-kids.svg" alt="CCV Kids" style="height: 22px;" />' %}
 								{% elseif eventName contains "student" or eventName contains "high school" or eventName contains "junior high" or eventName contains "hs" or eventName contains "jh" %}
@@ -57,6 +57,8 @@ list, but marked differently.
 										<small class="text-muted" style="display: inline-block;">{{ occurrence.EventItem.Name }}</small><br />
 										{{ occurrence.Schedule.iCalendarContent | DatesFromICal| First | Date: 'ddd, MMM d'  }}<br />
 										{{ occurrence.Schedule.iCalendarContent | DatesFromICal| First | Date: 'h:mmtt'  }}
+
+										<p class="event-location">{{ occurrence.Location }}</p>
 									</div>
 								</a>
 							{% else %}
@@ -67,7 +69,7 @@ list, but marked differently.
 										{{ occurrence.Schedule.iCalendarContent | DatesFromICal| First | Date: 'h:mmtt'  }}
 									</div>
 								</a>
-							{% endif %}          
+							{% endif %}
 						{% endif %}
 					{% endif %}
 

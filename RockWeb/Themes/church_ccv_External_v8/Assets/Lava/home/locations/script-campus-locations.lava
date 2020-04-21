@@ -8,6 +8,10 @@ CCV.findCampusById = function (campusId) {
 {% assign activeCampuses = Campuses | Where: 'IsActive', true %}
 CCV.locations = [
 {% for campus in activeCampuses %}
+  {% if campus.Id == 12 %}
+    {% continue %}
+  {% endif %}
+  
   {% assign renderedTimes = "" %}{% assign hasSaturday = false %}{% assign hasSunday = false %}
   {
     id: '{{ campus.Id }}',
