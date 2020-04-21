@@ -14,19 +14,17 @@
 // limitations under the License.
 // </copyright>
 //
-using System.IO;
+using System.Net;
 using System.Net.Http;
 using System.Text;
-using Rock.Model;
-using Newtonsoft.Json;
-using System.Net;
 using System.Web.Http;
-using System.Web.Routing;
+using Newtonsoft.Json;
+using Rock.Data;
+using Rock.Model;
 using Rock.Rest.Filters;
 using Rock.Security;
-using Rock.Data;
 
-namespace church.ccv.StreamingBox.Rest
+namespace church.ccv.CCVRest.StreamingBox
 {
     public class StreamingBoxController : Rock.Rest.ApiControllerBase
     {

@@ -146,6 +146,8 @@
     <Compile Include="STARS\Model\STARSRegistrationModel.cs" />
     <Compile Include="STARS\Util\STARSContentService.cs" />
     <Compile Include="STARS\Util\STARSRegistrationService.cs" />
+    <Compile Include="General\GeneralController.cs" />
+    <Compile Include="StreamingBox\StreamingBoxController.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
