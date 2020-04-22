@@ -16,11 +16,6 @@ namespace church.ccv.CCVRest.MobileApp
 {
     class MAGroupService
     {
-        const int GroupRoleId_NeighborhoodGroupCoach = 50;
-        const int GroupRoleId_NeighborhoodGroupAssistantCoach = 51;
-        const int GroupRoleId_NeighborhoodGroupAttendee = 49;
-        const int GroupTypeId_NeighborhoodGroup = 49;
-
         const string GroupDescription_Key = "GroupDescription";
         const string ChildcareDescription_Key = "Childcare";
         const string FamilyPicture_Key = "FamilyPicture";
@@ -28,9 +23,18 @@ namespace church.ccv.CCVRest.MobileApp
         const string GroupFilters_Key = "GroupFilters";
         const string ChildcareProvided_FilterKey = "Childcare Provided";
 
+        public static bool IsOnlineGroup( Group group )
+        {
+            if ( group.CampusId == Common.Defines.CampusId_CCVOnline )
+            {
+                return true;
+            }
+            return false;
+        }
+
         public static bool IsNeighborhoodGroup( Group group )
         {
-            if ( group.GroupTypeId == GroupTypeId_NeighborhoodGroup )
+            if ( group.GroupTypeId == Common.Defines.GroupTypeId_NeighborhoodGroup )
             {
                 return true;
             }
@@ -45,17 +49,17 @@ namespace church.ccv.CCVRest.MobileApp
             {
                 switch ( groupMember.GroupRoleId )
                 {
-                    case GroupRoleId_NeighborhoodGroupCoach:
+                    case Common.Defines.GroupRoleId_NeighborhoodGroupCoach:
                     {
                         return MAGroupMemberView.CoachView;
                     }
 
-                    case GroupRoleId_NeighborhoodGroupAssistantCoach:
+                    case Common.Defines.GroupRoleId_NeighborhoodGroupAssistantCoach:
                     {
                         return MAGroupMemberView.AssistantCoachView;
                     }
 
-                    case GroupRoleId_NeighborhoodGroupAttendee:
+                    case Common.Defines.GroupRoleId_NeighborhoodGroupAttendee:
                     {
                         return MAGroupMemberView.MemberView;
                     }
@@ -66,14 +70,82 @@ namespace church.ccv.CCVRest.MobileApp
             return MAGroupMemberView.NonMemberView;
         }
 
-        public static List<MAGroupModel> GetMobileAppGroups( string nameKeyword,
-                                                             string descriptionKeyword,
-                                                             Location locationForDistance,
-                                                             bool? requiresChildcare,
-                                                             int? skip,
-                                                             int top )
+        public static List<MAGroupModel> GetOnlineMobileAppGroups( string nameKeyword,
+                                                                   string descriptionKeyword,
+                                                                   int? skip,
+                                                                   int top )
         {
-            // Gets Neighborhood Groups, searches by the provided arguments, and returns matching values as MobileAppGroupModels
+            // Gets Neighborhood Groups that ARE tied to the CCV Online campus (they won't have a physical location, but we don't need to query around that.)
+
+            // Then, searches by the provided arguments, and returns matching values as MobileAppGroupModels
+
+            // The id for the group description on Neighborhood groups. Used for joining the attributeValue if a descriptionKeyword is provided.
+            const int AttributeId_GroupDescription = 13055;
+
+            // First get all neighborhood groups, filtered by name and description if the caller provided those keywords
+            RockContext rockContext = new RockContext();
+
+            // get all groups of this group type that are public, and have a long/lat we can use
+            GroupService groupService = new GroupService( rockContext );
+            IEnumerable<Group> groupList = groupService.Queryable().AsNoTracking()
+                                                       .Where( a => a.GroupTypeId == Common.Defines.GroupTypeId_NeighborhoodGroup 
+                                                                 && a.IsPublic == true 
+                                                                 && a.CampusId == Common.Defines.CampusId_CCVOnline );
+
+            // if they provided name keywords, filter by those
+            if ( string.IsNullOrWhiteSpace( nameKeyword ) == false )
+            {
+                groupList = groupList.Where( a => a.Name.ToLower().Contains( nameKeyword.ToLower() ) );
+            }
+
+            // if they provided description, we need to join the attribute value table
+            if ( string.IsNullOrWhiteSpace( descriptionKeyword ) == false )
+            {
+                // Join the attribute value that defines the GroupDescription with the group
+                var avQuery = new AttributeValueService( rockContext ).Queryable().AsNoTracking().Where( av => av.AttributeId == AttributeId_GroupDescription );
+                var joinedQuery = groupList.Join( avQuery, g => g.Id, av => av.EntityId, ( g, av ) => new { Group = g, GroupDesc = av.Value } );
+
+                // see if the GroupDescription attribute value has the description keyword in it
+                groupList = joinedQuery.Where( g => g.GroupDesc.ToLower().Contains( descriptionKeyword.ToLower() ) ).Select( g => g.Group );
+            }
+
+            // grab the nth set
+            if ( skip.HasValue )
+            {
+                groupList = groupList.Skip( skip.Value );
+            }
+
+            // and take the top amount
+            groupList = groupList.Take( top ).ToList();
+
+
+            // Now package the groups into GroupResult objects that store what the Mobile App cares about
+            List<MAGroupModel> groupResultList = new List<MAGroupModel>();
+
+            // now take only what we need from each group
+            foreach ( Group group in groupList )
+            {
+                MAGroupModel groupResult = GetMobileAppGroup( group, MAGroupMemberView.NonMemberView );
+
+                if ( groupResult != null )
+                {
+                    groupResultList.Add( groupResult );
+                }
+            }
+
+            return groupResultList;
+        }
+
+        public static List<MAGroupModel> GetPhysicalMobileAppGroups( string nameKeyword,
+                                                                     string descriptionKeyword,
+                                                                     Location locationForDistance,
+                                                                     bool? requiresChildcare,
+                                                                     int? skip,
+                                                                     int top )
+        {
+            // Gets Neighborhood Groups that have a physical location and are NOT tied to the CCV Online campus.
+
+            // Then, searches by the provided arguments, and returns matching values as MobileAppGroupModels
 
             // The id for the group description on Neighborhood groups. Used for joining the attributeValue if a descriptionKeyword is provided.
             const int AttributeId_GroupDescription = 13055;
@@ -87,7 +159,9 @@ namespace church.ccv.CCVRest.MobileApp
             // get all groups of this group type that are public, and have a long/lat we can use
             GroupService groupService = new GroupService( rockContext );
             IEnumerable<Group> groupList = groupService.Queryable( "Schedule,GroupLocations.Location" ).AsNoTracking()
-                                                       .Where( a => a.GroupTypeId == GroupTypeId_NeighborhoodGroup && a.IsPublic == true )
+                                                       .Where( a => a.GroupTypeId == Common.Defines.GroupTypeId_NeighborhoodGroup 
+                                                                 && a.IsPublic == true 
+                                                                 && a.CampusId != Common.Defines.CampusId_CCVOnline )
                                                        .Include( a => a.GroupLocations ).Where( a => a.GroupLocations.Any( x => x.Location.GeoPoint != null ) );
 
             // if they provided name keywords, filter by those
@@ -189,8 +263,10 @@ namespace church.ccv.CCVRest.MobileApp
                                                        .Select( gm => new { gm.GroupMemberStatus, gm.GroupRoleId, gm.Person } )
                                                        .ToList( );
 
+            
+
             // now get the group coach. If there isn't one, we'll fail, because we don't want a group with no coach
-            var coach = workingGroupMembersList.Where( gm => GroupRoleId_NeighborhoodGroupCoach == gm.GroupRoleId ).FirstOrDefault();
+            var coach = workingGroupMembersList.Where( gm => church.ccv.CCVRest.Common.Defines.GroupRoleId_NeighborhoodGroupCoach == gm.GroupRoleId ).FirstOrDefault();
             if ( coach == null )
             {
                 return null;
@@ -228,11 +304,11 @@ namespace church.ccv.CCVRest.MobileApp
             Person associatePastor = GetAssociatePastorOverGroupCoach( coach.Person.Id );
 
             // get all the assistant coaches
-            var assistantCoaches = workingGroupMembersList.Where( gm => gm.GroupRoleId == GroupRoleId_NeighborhoodGroupAssistantCoach ).ToList();
+            var assistantCoaches = workingGroupMembersList.Where( gm => gm.GroupRoleId == Common.Defines.GroupRoleId_NeighborhoodGroupAssistantCoach ).ToList();
 
             // get anyone that's a "regular" (non coach or assistant coach) member
-            var regularMembers = workingGroupMembersList.Where( gm => GroupRoleId_NeighborhoodGroupCoach != gm.GroupRoleId &&
-                                                                      GroupRoleId_NeighborhoodGroupAssistantCoach != gm.GroupRoleId )
+            var regularMembers = workingGroupMembersList.Where( gm => Common.Defines.GroupRoleId_NeighborhoodGroupCoach != gm.GroupRoleId &&
+                                                                      Common.Defines.GroupRoleId_NeighborhoodGroupAssistantCoach != gm.GroupRoleId )
                                                         .Select( gm => new { gm.GroupMemberStatus, gm.Person }  )
                                                         .ToList();
 

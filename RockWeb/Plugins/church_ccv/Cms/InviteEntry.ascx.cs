@@ -133,7 +133,7 @@ defaultValue: @"
 defaultValue: @"
 
 " )]
-    public partial class InviteEntry : church.ccv.Web.Cms.BaseContentBlock
+    public partial class InviteEntry : church.ccv.Utility.Cms.BaseContentBlock
     {
         /// <summary>
         /// Shows the content.

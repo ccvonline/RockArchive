@@ -1,0 +1,52 @@
+.page-background {
+    background-image: url("/Themes/church_ccv_External_v8/Assets/Images/stand-alone/2020/Web-Hero-ChildCare.jpg");
+    background-color: #FFFFFF;
+}
+
+/* Mobile Background Image */
+@media screen and (max-width: 500px) {
+    .page-background {
+        background-image: url("/Themes/church_ccv_External_v8/Assets/Images/stand-alone/2020/Child-care-Mobile-Hero.jpg");
+    }
+}
+
+#section-a-bg {
+    background-color: #ffffff;
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+/* Map Section */
+#zone-sectionb {
+    max-width: 100%;
+    margin: unset;
+ }
+
+/* Full width for map*/
+#section-b-bg {
+    padding: 0;
+    background-color: #ffffff;
+}
+ 
+.childcare-campuses-map-window {
+    background: #777;
+ }
+ 
+ .childcare-campuses-map {
+    min-height: 550px;
+ }
+
+ /* End Map Section */
+
+ .faqs h2 {
+    margin-top: 0;
+}
+ 
+/* Weird padding fix... */
+/* Standard Layout Tablet Styling */
+@media screen and (max-width: 768px) {
+    #section-c-bg {
+        padding-top: 20px;
+        padding-bottom: 20px;
+    }
+}

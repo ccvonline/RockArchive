@@ -32,10 +32,10 @@ namespace church.ccv.Utility.Workflow.Action
     /// <summary>
     /// Sets an attribute's value to the selected person 
     /// </summary>
-    [ActionCategory( "Person Update" )]
+    [ActionCategory( "People" )]
     [Description( "Sets a phone number to be that person's SMS-enabled mobile number. Will add the phone number if it isn't there." )]
     [Export( typeof( ActionComponent ) )]
-    [ExportMetadata( "ComponentName", "Set Person Attribute" )]
+    [ExportMetadata( "ComponentName", "Person Set Mobile SMS Number" )]
 
     [WorkflowAttribute("Person", "Workflow attribute that contains the person to update.", true, "", "", 0, null, 
         new string[] { "Rock.Field.Types.PersonFieldType" } )]
