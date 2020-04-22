@@ -405,6 +405,9 @@ namespace church.ccv.Pastoral.Model
                             if ( workflowType != null )
                             {
                                 Dictionary<string, string> attributeValues = new Dictionary<string, string>();
+                                attributeValues.Add( "CareRequest", this.Guid.ToString() );
+                                attributeValues.Add( "WorkertoNotify", worker.PrimaryAlias.Guid.ToString() );
+
                                 LaunchWorkflow( workflowType.Guid, "Notification", attributeValues );
                             }
                         }
@@ -429,6 +432,9 @@ namespace church.ccv.Pastoral.Model
                         if ( workflowType != null )
                         {
                             Dictionary<string, string> attributeValues = new Dictionary<string, string>();
+                            attributeValues.Add( "CareRequest", this.Guid.ToString() );
+                            attributeValues.Add( "WorkertoNotify", this.WorkerPersonAlias.Guid.ToString() );
+
                             LaunchWorkflow( workflowType.Guid, "Notification", attributeValues );
                         }
                     }
@@ -436,6 +442,8 @@ namespace church.ccv.Pastoral.Model
                     break;
                 }
             }
+
+            base.PreSaveChanges( dbContext, entry );
         }
 
         #endregion
