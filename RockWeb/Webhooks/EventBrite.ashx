@@ -25,7 +25,6 @@ using Rock.Data;
 using Rock.Model;
 using Rock.Web.Cache;
 using System.Data.Entity;
-using church.ccv.MobileApp.Models;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
