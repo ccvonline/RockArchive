@@ -30,7 +30,7 @@
             <div class="pastor-info">
                 <h4>Your Campus Pastor</h4>
                 <h5 class="name"><strong>{{ campusPastor.FullName }}</strong></h5>
-                <h5 class="email">{{ campusPastor.Email }}</h5>
+                <a href="mailto:{{campusPastor.Email}}"><h5 class="email">{{ campusPastor.Email }}</h5></a>
             </div>
         </div>
     {% endif %}
@@ -41,7 +41,7 @@
             <div class="pastor-info">
                 <h4>Your Associate Pastor</h4>
                 <h5 class="name"><strong>{{ associatePastor.FullName }}</strong></h5>
-                <h5 class="email">{{ associatePastor.Email }}</h5>
+                <a href="mailto:{{associatePastor.Email}}"><h5 class="email">{{ associatePastor.Email }}</h5></a>
             </div>
         </div>
     {% endif %}    
